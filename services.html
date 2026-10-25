@@ -1713,6 +1713,8 @@ html .m-hl .hlt{background:none !important;-webkit-background-clip:border-box;ba
 html .m-hl.on{background-size:100% 100%}
 html .m-hl.on .hlt{color:#000}
 @media (prefers-reduced-motion:reduce){html .m-hl,html .m-hl .hlt{transition:none}}
+/* footer: the big MARIART sits lower, clear of the [ RU / EN ] switch, so reaching for the language never sets the letters off */
+html footer .f-big{margin-top:110px !important}
 </style>
 </head>
 <body data-page="services" data-title-ru="Услуги — MARIART" data-title-en="Services — MARIART"><script>(function(){var w=document.documentElement.clientWidth;document.body.style.zoom=w>=1024?w/1920:(w>600?w/600:(w<360?w/360:""));document.documentElement.classList.toggle("tab",w>600&&w<1024)})();</script>
@@ -3028,8 +3030,23 @@ centerHero();addEventListener('load',centerHero);[1500,3500,7000,9500].forEach(f
 if(document.fonts&&document.fonts.ready)document.fonts.ready.then(centerHero);
 new MutationObserver(function(){setTimeout(centerHero,80)}).observe(R,{attributes:true,attributeFilter:['data-lang']});
 
+/* ---------- socials: the crossing between two circles is drawn as two point-symmetric cubic S-curves.
+   Each curve leaves circle A tangentially (control handle along the circle's tangent at the start point), sweeps
+   through the midpoint and enters circle B tangentially at the mirrored point — no straight X, no kinks.
+   th = start angle measured clockwise from the top of the circle (a fraction of the inner-tangent angle), so the
+   curve starts flatter than the old straight tangent and steepens through the centre; handle length k·|PQ|. ---------- */
+function socS(A,B,f){var r=A.r,D=Math.hypot(B.cx-A.cx,B.cy-A.cy),a=Math.asin(Math.min(1,2*r/D)),th=a*.35,k=.42,s=Math.sin(th),c=Math.cos(th),out='';
+  [1,-1].forEach(function(v){var P=[A.cx+r*s,A.cy-v*r*c],Q=[B.cx-r*s,B.cy+v*r*c],L=k*Math.hypot(Q[0]-P[0],Q[1]-P[1]),t=[c,v*s];
+    out+='<path class="sx" d="M'+f(P[0])+' '+f(P[1])+'C'+f(P[0]+L*t[0])+' '+f(P[1]+L*t[1])+' '+f(Q[0]-L*t[0])+' '+f(Q[1]-L*t[1])+' '+f(Q[0])+' '+f(Q[1])+'"/>'});
+  return out}
+/* the two S-curves cross at their midpoints: shift each dash pattern so the crossing falls in the middle of a gap
+   (clean, symmetric centre instead of two dashes overlapping into a blob) */
+function socSx(root){$$('path.sx',root).forEach(function(p){var g=p.parentNode,da=(g.getAttribute('stroke-dasharray')||'').split(/[ ,]+/).map(parseFloat);
+  if(da.length<2||!p.getTotalLength)return;var P=da[0]+da[1],L=p.getTotalLength();if(!L)return;
+  p.setAttribute('stroke-dashoffset',(((da[0]+da[1]/2-L/2)%P+P)%P).toFixed(2))})}
+
 /* ---------- tablet socials: geometric decoration (arcs tangent to the rules, X = inner tangents of the two circles) ---------- */
-(function(){var s=document.querySelector('#socials-t .soc');if(!s||s.querySelector('.soc-deco'))return;s.insertAdjacentHTML('afterbegin','<svg class="soc-deco" viewBox="0 0 1920 718" aria-hidden="true" fill="none" stroke="#2e2e2e" stroke-width="2"><line x1="0" y1="100" x2="1920" y2="100"/><line x1="0" y1="405" x2="1920" y2="405"/><line x1="0" y1="710" x2="1920" y2="710"/><g stroke-dasharray="23 23"><path d="M707.5 100A152.5 152.5 0 0 1 707.5 405"/><path d="M707.5 405A152.5 152.5 0 0 1 707.5 710"/><path d="M1957.5 405A152.5 152.5 0 0 0 1957.5 710"/><line x1="1085.18" y1="423.43" x2="1579.82" y2="691.57"/><line x1="1085.18" y1="691.57" x2="1579.82" y2="423.43"/></g></svg>');})();
+(function(){var s=document.querySelector('#socials-t .soc');if(!s||s.querySelector('.soc-deco'))return;var TB={be:1012.5,li:1652.5};s.insertAdjacentHTML('afterbegin','<svg class="soc-deco" viewBox="0 0 1920 718" aria-hidden="true" fill="none" stroke="#2e2e2e" stroke-width="2"><line x1="0" y1="100" x2="1920" y2="100"/><line x1="0" y1="405" x2="1920" y2="405"/><line x1="0" y1="710" x2="1920" y2="710"/><g stroke-dasharray="23 23"><path d="M707.5 100A152.5 152.5 0 0 1 707.5 405"/><path d="M707.5 405A152.5 152.5 0 0 1 707.5 710"/><path d="M1957.5 405A152.5 152.5 0 0 0 1957.5 710"/>'+socS({cx:TB.be,cy:557.5,r:152.5},{cx:TB.li,cy:557.5,r:152.5},function(n){return n.toFixed(2)})+'</g></svg>');socSx(s);})();
 
 /* ---------- socials decoration rebuilt geometrically: dashed arcs tangent to the rules, X = inner common tangents of the two circles ---------- */
 /* desktop socials: the line drawing is built as inline vector SVG from the real circle positions
@@ -3041,13 +3058,11 @@ new MutationObserver(function(){setTimeout(centerHero,80)}).observe(R,{attribute
     var W=soc.offsetWidth,H=soc.offsetHeight,f=function(n){return n.toFixed(2)};
     var arc=function(c,dx,side){var x=c.cx+dx;return '<path d="M'+f(x)+' '+f(c.cy-c.r)+'A'+f(c.r)+' '+f(c.r)+' 0 0 '+side+' '+f(x)+' '+f(c.cy+c.r)+'"/>'};
     /* inner common tangents of Behance and LinkedIn: they cross between the circles, segments run tangent point to tangent point */
-    var mx=(be.cx+li.cx)/2,my=(be.cy+li.cy)/2,D=li.cx-be.cx,a=Math.asin(Math.min(1,2*be.r/D)),X='';
-    [1,-1].forEach(function(sg){var ux=Math.cos(a),uy=sg*Math.sin(a),p1=(be.cx-mx)*ux+(be.cy-my)*uy,p2=(li.cx-mx)*ux+(li.cy-my)*uy;
-      X+='<line x1="'+f(mx+ux*p1)+'" y1="'+f(my+uy*p1)+'" x2="'+f(mx+ux*p2)+'" y2="'+f(my+uy*p2)+'"/>'});
+    var X=socS(be,li,f);
     var svg='<svg class="soc-geo-d" width="'+W+'" height="'+H+'" viewBox="0 0 '+W+' '+H+'" aria-hidden="true" fill="none" stroke="#333" stroke-width="1.4" shape-rendering="geometricPrecision">'+
       '<line x1="-400" y1="'+f(tg.cy-tg.r)+'" x2="'+(W+400)+'" y2="'+f(tg.cy-tg.r)+'"/><line x1="-400" y1="'+f(tg.cy+tg.r)+'" x2="'+(W+400)+'" y2="'+f(tg.cy+tg.r)+'"/><line x1="-400" y1="'+f(be.cy+be.r)+'" x2="'+(W+400)+'" y2="'+f(be.cy+be.r)+'"/>'+
       '<g stroke-dasharray="23 23">'+arc(tg,-2*tg.r,1)+arc(be,-2*be.r,1)+arc(li,2*li.r,0)+arc(li,4*li.r,0)+X+'</g></svg>';
-    var old=soc.querySelector('svg.soc-geo-d');if(old)old.outerHTML=svg;else soc.insertAdjacentHTML('afterbegin',svg);
+    var old=soc.querySelector('svg.soc-geo-d');if(old)old.outerHTML=svg;else soc.insertAdjacentHTML('afterbegin',svg);socSx(soc);
     if(img)img.style.display='none';
   }
   draw();addEventListener('load',draw);addEventListener('resize',draw);
@@ -3072,8 +3087,8 @@ $$('.f-mail,.m-mail').forEach(function(a){if(a.querySelector('.rl'))return;var t
    360-wide frame (scaled to the screen): circles r=48 centred at 60/180/300 touch both rules; in each gap the two
    inner common tangents of the neighbouring circles cross — that is the dashed X */
 (function(){var g=document.querySelector('.m-circles .sg-in');if(!g||g.querySelector('.sg-geo'))return;
-  var X=function(c){return '<line x1="'+(c-36)+'" y1="0" x2="'+(c+36)+'" y2="96"/><line x1="'+(c-36)+'" y1="96" x2="'+(c+36)+'" y2="0"/>'};
-  g.insertAdjacentHTML('afterbegin','<svg class="sg-geo" width="360" height="96" viewBox="0 0 360 96" aria-hidden="true" fill="none" stroke="#3c3c3c" stroke-width=".7"><line x1="-400" y1="0.35" x2="760" y2="0.35"/><line x1="-400" y1="95.65" x2="760" y2="95.65"/><g stroke-dasharray="4.5 3.2">'+X(120)+X(240)+'<path d="M12 0A48 48 0 0 0 12 96"/><path d="M348 0A48 48 0 0 1 348 96"/></g></svg>');
+  var X=function(c){return socS({cx:c-60,cy:48,r:48},{cx:c+60,cy:48,r:48},function(n){return n.toFixed(2)})};
+  g.insertAdjacentHTML('afterbegin','<svg class="sg-geo" width="360" height="96" viewBox="0 0 360 96" aria-hidden="true" fill="none" stroke="#3c3c3c" stroke-width=".7"><line x1="-400" y1="0.35" x2="760" y2="0.35"/><line x1="-400" y1="95.65" x2="760" y2="95.65"/><g stroke-dasharray="4.5 3.2">'+X(120)+X(240)+'<path d="M12 0A48 48 0 0 0 12 96"/><path d="M348 0A48 48 0 0 1 348 96"/></g></svg>');socSx(g);
   var cs=$$('.m-c',g),pos={tg:132},ord=[];cs.forEach(function(c){ord.push(c)});
   /* Behance left, Telegram in the middle, LinkedIn right */
   var tg=cs.filter(function(c){return c.classList.contains('tg')})[0],rest=cs.filter(function(c){return c!==tg});
