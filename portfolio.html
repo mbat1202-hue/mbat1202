@@ -964,9 +964,6 @@ img.bw.bw-on{filter:grayscale(0)}
 #ldr .l-pct.gl .l-num{text-shadow:-.04em 0 rgba(255,46,110,.9),.04em 0 rgba(46,230,255,.9);transform:translateX(var(--gx,0)) skewX(-6deg);clip-path:polygon(0 0,100% 0,100% var(--gy,40%),0 var(--gy,40%),0 calc(var(--gy,40%) + 6%),100% calc(var(--gy,40%) + 6%),100% 100%,0 100%)}
 #ldr .l-pct.gl .dgs{transition:none}
 #ldr .l-bar{position:absolute;left:0;bottom:0;height:1px;background:rgba(255,255,255,.5);width:0;transition:width .3s linear}
-#ldr .l-name{position:absolute;left:clamp(16px,2.2vw,40px);right:clamp(16px,2.2vw,40px);top:50%;translate:0 -50%;text-align:center;font-size:clamp(70px,21vw,410px);font-weight:900;letter-spacing:-.08em;line-height:.9;overflow:hidden;pointer-events:none}
-#ldr .l-name span{display:inline-block;translate:0 105%;transition:translate 1s var(--e-io4);transition-delay:calc(.25s + var(--i) * 40ms)}
-#ldr.done .l-name span{translate:0 0}
 #ldr.done .l-pct{opacity:0;transform:translateY(-40%)}
 #ldr.done .l-code{opacity:0}
 html.ldr-on body{overflow:hidden}
@@ -1258,9 +1255,6 @@ html[data-lang="ru"] .m-view :is(.mh-h,.m-h2,.m-h2s){line-height:1.5 !important}
 .mm-bot{font-size:14px}
 /* phone/tablet: corner marks that sit on top of text are removed */
 html:not(.tab) .m-view .m-hb{display:none !important}
-/* phone: glass sits a bit higher and no longer covers the next card */
-.mh-glass-wrap{height:280px !important}
-.mh-glass-wrap img,.mh-glass-wrap canvas.coil3d{top:-70px !important;width:340px !important;height:340px !important;margin-left:-170px !important}
 /* phone contacts: the button keeps the same side padding as the text */
 .mc-btn{margin:10px 0 0 !important;align-self:stretch}
 /* tablet socials: label with the same left indent as the note, note centred in its row */
@@ -1276,8 +1270,6 @@ html:not(.tab) .m-view .m-hb{display:none !important}
 @media (prefers-reduced-motion:reduce){.sv-pk img,.ms-pi img{animation:none}}
 
 .mm-cta{display:inline-flex;align-items:center;justify-content:center;height:44px;padding:0 22px;background:#fff;color:#000;text-decoration:none;font-size:16px;font-weight:500;letter-spacing:-.03em;text-transform:lowercase}
-/* phone glass: a bit larger, centred so it touches the cards above and below equally */
-.mh-glass-wrap img,.mh-glass-wrap canvas.coil3d{top:-80px !important;width:440px !important;height:440px !important;margin-left:-220px !important}
 /* phone "discuss" block: the same space under the button as above the heading */
 .m-discuss{height:auto !important;padding:40px 0 40px !important}
 .m-discuss > .m-form{position:relative !important;left:auto !important;right:auto !important;top:auto !important;margin:28px 20px 0 !important}
@@ -1286,9 +1278,10 @@ html:not(.tab) .m-view .m-hb{display:none !important}
 .mm-x{grid-column:2 !important;justify-self:end !important}
 .mm-cta{color:#000 !important}.mm-cta *{color:inherit !important}
 .mm-cta{background:#fff !important}
-/* phone: cards a little closer to the glass */
-.mh-glass-wrap{height:240px !important}
-.mh-glass-wrap img,.mh-glass-wrap canvas.coil3d{top:-100px !important}
+/* phone/tablet glass: the coil sits in the gap between the cards and never crosses a card edge
+   (over a card the glass showed the card's straight edge through itself); ~20px of air above and below the drawing */
+.mh-glass-wrap{height:290px !important}
+.mh-glass-wrap img,.mh-glass-wrap canvas.coil3d{top:-65px !important;width:440px !important;height:440px !important;margin-left:-220px !important}
 /* scrollbars in the site style: thin, grey on dark */
 html{scrollbar-width:thin;scrollbar-color:#4a4a4a #0d0d0d}
 *{scrollbar-width:thin;scrollbar-color:#4a4a4a transparent}
@@ -1564,6 +1557,24 @@ html[data-lang="ru"] #about h2 .hl{margin-left:3.5px}
 /* desktop form: the status line sits under the button, never on top of it */
 .dc-form .f-status{top:calc(908/1920*100cqw) !important}
 form.dc-form:has(.fv-inl:not(.out)) .f-status{top:calc(930/1920*100cqw) !important}
+/* ---- touch: a tap plays the same reaction as the mouse hover on desktop (.tap is set by fixes.js for ~half a second) ---- */
+@media (hover:none){
+  :is(.d-view header .btn,.f-cta,.m-fcta,.mm-cta,.m-burger,.pf-btn,.hm-more,.mh-more,.mp-btn,.ct-btn,.mc-btn,.cv .btn).tap{background-color:transparent !important;color:#fff !important;opacity:1 !important}
+  :is(.dc-btn,.m-form button).tap{background-color:transparent !important;color:#000 !important}
+  :is(.d-view header .btn,.f-cta,.m-fcta,.mm-cta,.m-burger,.pf-btn,.hm-more,.mh-more,.mp-btn,.ct-btn,.mc-btn,.dc-btn,.m-form button,.cv .btn,.ck-ok,.ck-no).tap{
+    background-size:var(--cl) 1px,1px var(--cl),var(--cl) 1px,1px var(--cl),var(--cl) 1px,1px var(--cl),var(--cl) 1px,1px var(--cl) !important}
+  .ck-ok.tap{background-color:transparent !important;color:#fff !important}
+  .ck-no.tap{box-shadow:inset 0 0 0 1px rgba(255,255,255,0)}
+  a.bk.tap .bk-l,.mm-nav a.tap .mm-b:first-child,.mm-side a.tap .mm-b:first-child{translate:-5px 0}
+  a.bk.tap .bk-r,.mm-nav a.tap .mm-b:last-child,.mm-side a.tap .mm-b:last-child{translate:5px 0}
+  :is(.logo,.m-logo).tap span,.roll.tap .rl{transform:translateY(-1.15em)}
+  .m-c.tap img.m-ring,.soc-c.tap img.soc-ring{filter:invert(1) !important}
+  .m-soct .soc-tg.tap .soc-tgi{filter:invert(1) !important}
+  :is(.dc-cbt a,.m-check a).tap{animation:ulWipe .7s cubic-bezier(.65,0,.35,1)}
+  .mm-x.tap::before,.pol-x.tap::before{transform:rotate(135deg)}.mm-x.tap::after,.pol-x.tap::after{transform:rotate(45deg)}
+  .lgx .lgo.tap:not(.on){opacity:1 !important;scale:1.18}
+}
+.mm-nav .mm-b,.mm-side .mm-b{display:inline-block;transition:translate .45s cubic-bezier(.16,1,.3,1)}
 </style>
 </head>
 <body data-page="portfolio" data-title-ru="Портфолио — MARIART" data-title-en="Portfolio — MARIART"><script>(function(){var w=document.documentElement.clientWidth;document.body.style.zoom=w>=1024?w/1920:(w>600?w/600:(w<360?w/360:""));document.documentElement.classList.toggle("tab",w>600&&w<1024)})();</script>
@@ -2387,7 +2398,6 @@ R.classList.add('ldr-on');
 var L=document.createElement('div');L.id='ldr';L.setAttribute('aria-hidden','true');
 var col='<span class="dg"><span class="dgs">'+'0123456789'.split('').map(function(d){return '<b>'+d+'</b>'}).join('')+'</span></span>';
 L.innerHTML='<div class="l-top"><span class="l-ttl">MARIART</span><span>portfolio — 2026</span></div>'+
-  '<div class="l-name" aria-hidden="true">MARIART</div>'+
   '<div class="l-bot"><div class="l-code"></div><div class="l-pct"><span class="l-num">'+col+col+col+'</span><span class="l-per">%</span><span class="l-gl" data-t=""></span></div></div><i class="l-bar"></i>';
 R.appendChild(L);
 var digits=$$('.dgs',L), pct=L.querySelector('.l-pct'), gl=L.querySelector('.l-gl'), code=L.querySelector('.l-code'), bar=L.querySelector('.l-bar');
@@ -2420,8 +2430,8 @@ function frame(now){
 }
 function finish(){
   pct.classList.remove('gl');
-  L.classList.add('done');                                   // digits leave, MARIART floats up letter by letter
-  setTimeout(asterisk,1250);
+  L.classList.add('done');                                   // digits leave, then the asterisk takes over (no big MARIART)
+  setTimeout(asterisk,550);
 }
 /* hand-over to the first screen: a white asterisk spins up in the middle, then becomes a hole that grows
    and cuts the loading screen away (after the reference pin) */
@@ -2451,7 +2461,6 @@ function asterisk(){
     requestAnimationFrame(step);
   })(t0);
 }
-$$('.l-name',L).forEach(function(n){var k=0;n.innerHTML=n.textContent.split('').map(function(c){return '<span style="--i:'+(k++)+'">'+c+'</span>'}).join('')});
 requestAnimationFrame(frame);
 })();
 </script>
@@ -2638,6 +2647,23 @@ function magnet(b){if(b._mag)return;b._mag=1;   /* a JS property, not an attribu
 var MAG='.ct-btn,.d-view header .btn,.hm-more,.mh-more,.pf-btn,.mp-btn,.mc-btn,.dc-btn,.m-form button,.mm-cta,.m-fcta,.f-cta,.ck-ok,.ck-no';
 function magnetAll(){if(fine&&!reduce)$$(MAG).forEach(magnet)}
 magnetAll();
+
+/* ---------- touch: a tap shows the same reaction as the desktop hover ----------
+   The pressed element gets .tap for a moment (styles in fixes.css, @media (hover:none)). A link that leaves the page
+   waits a quarter of a second, so the reaction is seen before the next page opens. */
+(function(){
+  var SEL='a,button,.m-c,.soc-c,.soc-tg,.lgo';
+  function press(el){if(!el)return;el.classList.add('tap');clearTimeout(el._tapT);el._tapT=setTimeout(function(){el.classList.remove('tap')},550)}
+  var lastTouch=0;
+  document.addEventListener('pointerdown',function(e){if(e.pointerType==='mouse')return;lastTouch=Date.now();var el=e.target.closest&&e.target.closest(SEL);press(el);
+    var lg=e.target.closest&&e.target.closest('.lgo');if(lg)press(lg)},{passive:true});
+  document.addEventListener('click',function(e){
+    if(e.defaultPrevented||Date.now()-lastTouch>800||reduce)return;
+    var a=e.target.closest&&e.target.closest('a[href]');if(!a||(a.target&&a.target!=='_self')||a.hasAttribute('download'))return;
+    var raw=a.getAttribute('href')||'';if(!raw||raw[0]==='#'||/^(mailto|tel|javascript):/i.test(raw))return;
+    e.preventDefault();setTimeout(function(){location.href=a.href},260);
+  });
+})();
 
 /* ---------- form fields: bracket placeholders (inline flow, so the brackets always hug the text) ---------- */
 $$('.dc-in,.m-form input:not([type=checkbox])').forEach(function(inp){
