@@ -3176,13 +3176,14 @@ new MutationObserver(function(){setTimeout(centerHero,80)}).observe(R,{attribute
    (stroke-dashoffset), progress follows the scroll: rules first, then the connectors, then the arcs; scrolling back
    erases them. prefers-reduced-motion: everything is simply shown. */
 var socN=0;
-function socPath(A,B,v,f){var r=A.r,D=Math.hypot(B.cx-A.cx,B.cy-A.cy),a=Math.asin(Math.min(1,2*r/D)),
-    th=Math.min(a*1.6,a+(Math.PI/2-a)*.25),be=18*Math.PI/180,ph=Math.min(a*1.3+.05,1.3),
+function socPath(A,B,v,f){/* straight inner-tangent diagonal; right at the touch point a short bend carries it under the circle */
+  var r=A.r,D=Math.hypot(B.cx-A.cx,B.cy-A.cy),a=Math.asin(Math.min(1,2*r/D)),
+    th=a*.62,be=16*Math.PI/180,
     t=[Math.cos(th),v*Math.sin(th)],n=[Math.sin(th),-v*Math.cos(th)],
     dir=[t[0]*Math.cos(be)+n[0]*Math.sin(be),t[1]*Math.cos(be)+n[1]*Math.sin(be)],
-    P=[A.cx+r*Math.sin(th),A.cy-v*r*Math.cos(th)],M=[(A.cx+B.cx)/2,(A.cy+B.cy)/2],d=[Math.cos(ph),v*Math.sin(ph)],
-    Lx=Math.hypot(M[0]-P[0],M[1]-P[1]),S1=[M[0]-d[0]*Lx*.32,M[1]-d[1]*Lx*.32],
-    h=.45*Math.hypot(S1[0]-P[0],S1[1]-P[1]),Q=[2*M[0]-P[0],2*M[1]-P[1]],S2=[2*M[0]-S1[0],2*M[1]-S1[1]],
+    P=[A.cx+r*Math.sin(th),A.cy-v*r*Math.cos(th)],M=[(A.cx+B.cx)/2,(A.cy+B.cy)/2],d=[Math.cos(a),v*Math.sin(a)],
+    MT=Math.sqrt(Math.max(0,D*D/4-r*r)),S1=[M[0]-d[0]*MT*.86,M[1]-d[1]*MT*.86],
+    h=.5*Math.hypot(S1[0]-P[0],S1[1]-P[1]),Q=[2*M[0]-P[0],2*M[1]-P[1]],S2=[2*M[0]-S1[0],2*M[1]-S1[1]],
     E=[P[0]-dir[0]*r*.5,P[1]-dir[1]*r*.5],E2=[Q[0]+dir[0]*r*.5,Q[1]+dir[1]*r*.5],
     p=function(x){return f(x[0])+' '+f(x[1])};
   return 'M'+p(E)+'L'+p(P)+'C'+p([P[0]+dir[0]*h,P[1]+dir[1]*h])+' '+p([S1[0]-d[0]*h,S1[1]-d[1]*h])+' '+p(S1)+
