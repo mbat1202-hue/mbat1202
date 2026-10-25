@@ -1012,7 +1012,7 @@ img.bw.bw-on{filter:grayscale(0)}
 #ldr .l-code{font:clamp(10px,.72vw,13px)/1.6 ui-monospace,SFMono-Regular,Menlo,monospace;color:rgba(255,255,255,.4);white-space:pre;overflow:hidden;max-height:34vh;max-width:min(680px,58vw);
   -webkit-mask-image:linear-gradient(to bottom,transparent,#000 35%);mask-image:linear-gradient(to bottom,transparent,#000 35%);display:flex;flex-direction:column;justify-content:flex-end;transition:opacity .4s}
 #ldr .l-code b{font-weight:400;color:rgba(255,255,255,.85)}
-#ldr .l-code i{display:inline-block;width:.6em;height:1.1em;vertical-align:-.15em;background:#fff;animation:lblink .7s steps(1) infinite}
+#ldr .l-code i{display:inline-block;width:1.5px;height:1.15em;margin-left:1px;vertical-align:-.2em;background:#fff;animation:lblink 1s steps(1) infinite}   /* a thin text caret, like in an editor */
 @keyframes lblink{50%{opacity:0}}
 #ldr .l-bot{display:flex;align-items:flex-end;justify-content:space-between;gap:20px}
 #ldr .l-pct{position:relative;display:flex;align-items:flex-end;font-size:clamp(84px,15vw,290px);font-weight:900;line-height:1;letter-spacing:-.04em;font-variant-numeric:tabular-nums;transition:opacity .45s ease,transform .6s var(--e-io4)}
@@ -1147,8 +1147,8 @@ footer .lgx,.m-frow .lgx{font-size:24px}
 .m-burger{position:relative;z-index:60;display:inline-flex;align-items:center;justify-content:center;height:40px;padding:0 20px;background:#fff;color:#000;border:0;font:500 15px/1 Inter,system-ui,sans-serif;letter-spacing:-.01em;text-transform:lowercase;cursor:pointer}
 .m-burger .bk-l,.m-burger .bk-r{display:none}
 /* while the menu is open the card (with its own close cross) takes the button's place: the button hides instead of peeking out above the card */
-.m-burger{transition:opacity .25s ease,visibility 0s linear 0s}
-html.mm-open .m-burger{opacity:0;visibility:hidden;transition:opacity .2s ease,visibility 0s linear .2s}
+:root .m-head .m-burger{transition:opacity .45s cubic-bezier(.16,1,.3,1) .4s,visibility 0s linear .4s,background-color .45s ease,color .45s ease,background-size .45s cubic-bezier(.16,1,.3,1),translate .2s !important}   /* comes back softly once the card has folded into it */
+:root.mm-open .m-head .m-burger{opacity:0;visibility:hidden;transition:opacity .2s ease,visibility 0s linear .2s !important}
 /* touch: a tap on a link or button is a tap — no long-press link preview, no text selection on the label */
 .m-view :is(a,button,.m-burger),.mm :is(a,button),.ck :is(a,button){-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
 .mm{position:fixed;inset:0;z-index:70;pointer-events:none;background:rgba(0,0,0,0);transition:background .5s ease}
@@ -1347,10 +1347,8 @@ html:not(.tab) .m-view .m-hb{display:none !important}
 /* phone/tablet glass: the coil sits in the gap between the cards and never crosses a card edge
    (over a card the glass showed the card's straight edge through itself); ~20px of air above and below the drawing */
 .mh-glass-wrap{height:290px !important}
-/* the WebGL canvas is an opaque square painted in the page colour and relies on mix-blend-mode:lighten to disappear over the
-   cards. iOS Safari drops that blend while a neighbour is mid-reveal, so the canvas showed as a dark box over the card above
-   during loading. Clipping the canvas to its own gap means it never lies over a card (the coil itself fits inside). */
-.mh-glass-wrap{overflow:hidden}
+/* the glass stands in front of the cards: the canvas/img carry the z-index, the wrapper stays a plain box (see coil.js) */
+.mh-glass-wrap{z-index:auto !important;transform:none !important;opacity:1 !important}.mh-glass-wrap canvas.coil3d,.mh-glass-wrap img{z-index:3}
 .mh-glass-wrap img,.mh-glass-wrap canvas.coil3d{top:-65px !important;width:440px !important;height:440px !important;margin-left:-220px !important}
 /* scrollbars in the site style: thin, grey on dark */
 html{scrollbar-width:thin;scrollbar-color:#4a4a4a #0d0d0d}
@@ -1645,6 +1643,9 @@ form.dc-form:has(.fv-inl:not(.out)) .f-status{top:calc(930/1920*100cqw) !importa
   .lgx .lgo.tap:not(.on){opacity:1 !important;scale:1.18}
 }
 .mm-nav .mm-b,.mm-side .mm-b{display:inline-block;transition:translate .45s cubic-bezier(.16,1,.3,1)}
+/* phone portfolio: photo first, then the [view the project] button under it */
+.mp-img + .mp-btn{margin-top:10px}
+html.mm-open .m-burger.tap,html.mm-open .m-burger{opacity:0 !important}
 </style>
 </head>
 <body data-page="home" data-title-ru="MARIART — UI/UX-дизайнер" data-title-en="MARIART — UI/UX Designer"><script>(function(){var w=document.documentElement.clientWidth;document.body.style.zoom=w>=1024?w/1920:(w>600?w/600:(w<360?w/360:""));document.documentElement.classList.toggle("tab",w>600&&w<1024)})();</script>
@@ -2538,7 +2539,7 @@ mark('.dc-year,.f-year','num');
 mark('.cv .lbl,.label,.m-label,.soc-label,.dc-mail','label');
 mark('.cv .h61,.cv .h38,.h2,.h-role,.m-h30,.m-h2,.m-h2s,.mh-h,.soc-h,.cap32,.c32 h3,.c32 .n,.pf-body h3,.pf-tx > .n,.mp-it h3,.mp-it > .n,.m-cap,.fq summary > span,.cards3 h3,.cards2 h3,.cards3 .num,.cards2 .num,.m-card h3,.m-card .num,.sv-pkt b,.sv-pkt .n,.ms-pi b,.ms-pi .n,.mj-t','head');
 mark('.cv .txt18 p,.c32 p,.lead,.m-lead,.mh-p,.cards3 p,.cards2 p,.m-card p,.pf-p p,.soc-note,.m-note,.ct-b,.mc-s,.mh-list p,.dc-cbt,.m-check p','para');
-mark('.pf-btn,.mp-btn,.hm-more,.mh-more,.sl-arrows,.mh-glass-wrap','btn');
+mark('.pf-btn,.mp-btn,.hm-more,.mh-more,.sl-arrows','btn');   /* .mh-glass-wrap is not animated: an animated wrapper isolates the glass canvas and breaks its blend */
 mark('.dc-in,.dc-cb,.dc-btn,.m-f,.m-check input,.m-form button','form');
 mark('.f-top .f-mail,.f-nav li,.f-soc li,.f-lang,.m-navs li,.m-mail,.m-frow > *,.f-first > *','mask');
 mark('canvas.blobs','canvas');
@@ -2822,8 +2823,12 @@ function fitTitles(){$$('.m-view .mp-title').forEach(function(h){if(!h.offsetPar
   h.parentNode.appendChild(m);var w=m.offsetWidth;m.remove();
   if(w>0&&avail>0)h.style.fontSize=(100*avail/w).toFixed(2)+'px';
   /* the black caption plate stays across the middle of the (now bigger) title, as in the design */
-  var sub=h.parentNode.querySelector('.mp-sub');if(sub&&sub.offsetParent===h.offsetParent){sub.style.top=(h.offsetTop+h.offsetHeight/2-sub.offsetHeight/2).toFixed(1)+'px'}})}
-fitTitles();addEventListener('load',fitTitles);addEventListener('resize',fitTitles);
+  var sub=h.parentNode.querySelector('.mp-sub');if(sub&&sub.offsetParent===h.offsetParent){var cy=h.offsetHeight/2;
+    /* optical centre: the middle of the capital letters (baseline minus half the cap height), not the middle of the line box */
+    if(typeof hm!=='undefined'&&hm){var g=hm.m(h,'H'),lh=h.offsetHeight;cy=(lh-(g.fa+g.fd))/2+g.fa-g.aa/2}
+    var sg=hm&&hm.m?hm.m(sub,'H'):null,sh=sub.offsetHeight,scy=sg?((sh-(sg.fa+sg.fd))/2+sg.fa-sg.aa/2):sh/2;
+    sub.style.top=(h.offsetTop+cy-scy).toFixed(1)+'px'}})}
+fitTitles();addEventListener('load',fitTitles);[300,1500,3000].forEach(function(t){setTimeout(fitTitles,t)});addEventListener('resize',fitTitles);
 if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fitTitles);
 new MutationObserver(function(){setTimeout(fitTitles,30);setTimeout(fitTitles,900)}).observe(R,{attributes:true,attributeFilter:['data-lang']});
 
@@ -3323,8 +3328,11 @@ function setup(img) {
   cv.setAttribute('aria-hidden', 'true');
   cv.style.cssText = img.getAttribute('style') || '';
   img.after(cv);
+  /* opaque canvas painted in the page colour; mix-blend-mode:lighten (home.css) lets the cards show through around the coil.
+     Lighten only works while no ancestor of the canvas is an isolated group (z-index / opacity / transform on .mh-glass-wrap),
+     so the wrapper is kept plain and the canvas carries the z-index and the fade itself. */
   const renderer = new THREE.WebGLRenderer({ canvas: cv, antialias: true, alpha: false, powerPreference: 'high-performance' });
-  renderer.setClearColor(0x161616, 1);               // the page colour; the canvas blends with "lighten"
+  renderer.setClearColor(0x161616, 1);               // transparent, but the glass refracts the page colour, as before
   renderer.toneMapping = THREE.AgXToneMapping;
   renderer.toneMappingExposure = 0.95;
   if (!shared) {
