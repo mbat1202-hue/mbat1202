@@ -1612,6 +1612,9 @@ html.mm-open .m-burger.tap,html.mm-open .m-burger{opacity:0 !important}
 /* phone page titles: the caption plate is bigger and its letters sit optically in the middle of the plate
    (text-box trims the line box to cap height and baseline, so equal padding = equal air above and below the capitals) */
 .m-view .mp-sub{font-size:19px !important;padding:6px 8px !important;line-height:1 !important;text-box:trim-both cap alphabetic}
+/* phone/tablet project strips scroll sideways only: with overflow-x:auto the browser also made them scroll vertically,
+   so a diagonal swipe moved the photos up/down inside the strip (empty gap above, captions cut off) */
+.m-works,.mj-posters{overflow-y:hidden !important;touch-action:pan-x pan-y;overscroll-behavior-y:auto}
 </style>
 </head>
 <body data-page="contacts" data-title-ru="Контакты — MARIART" data-title-en="Contacts — MARIART"><script>(function(){var w=document.documentElement.clientWidth;document.body.style.zoom=w>=1024?w/1920:(w>600?w/600:(w<360?w/360:""));document.documentElement.classList.toggle("tab",w>600&&w<1024)})();</script>
@@ -2255,6 +2258,9 @@ var RANK={num:1,line:0,vline:0,label:1,head:1,big:1,sub:1,mask:1,card:2,para:2,f
 function mark(sel,type){
   $$(sel).forEach(function(el){
     if(el.dataset.rv||el.closest(EX))return;
+    /* sideways strips/sliders reveal as one piece: a card that starts off-screen to the right would otherwise wait,
+       half-revealed (shifted down 30px), and make the strip scroll vertically */
+    if(el.closest('.m-works,.sl-view')&&!el.matches('.m-works,.sl-view'))return;
     if(el.closest('[data-rv="row"]')&&type!=='line')return;          // rows animate as one piece
     if(el.matches('.ln')||el.querySelector(':scope > .ln')&&type!=='big')return;   // hero titles keep their own rise
     el.dataset.rv=type;
@@ -2281,7 +2287,7 @@ mark('.pl,.ct-h,.sv-tbl .pl','line');
 mark('.ct-v','vline');
 mark('.cv .c32,.m-card,.cards3 > :not(img),.cards2 > :not(img),.sv-pk,.ms-pi','card');
 /* the desktop slider reveals as one piece: per-slide reveals left half-visible slides blank while their captions showed */
-mark('.cv .ph,.cv .wk,.pf-img,.mp-img,.sl-view,.m-work,.mh-ph,.portrait,.m-portrait,.pj-img,.pj-c,.m-view .mj-img','img');
+mark('.cv .ph,.cv .wk,.pf-img,.mp-img,.sl-view,.m-works,.mh-ph,.portrait,.m-portrait,.pj-img,.pj-c,.m-view .mj-img','img');
 mark('.c32 .n,.pf-tx > .n,.mp-it > .n,.cards3 .num,.cards2 .num,.m-card .num,.sv-pkt .n,.ms-pi .n,.mj-n','num');
 mark('.dc-year,.f-year','num');
 mark('.cv .lbl,.label,.m-label,.soc-label,.dc-mail','label');
