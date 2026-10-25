@@ -3210,9 +3210,9 @@ $$('.sl-dots').forEach(function(box){
     if(from<0||from===to||t>=1){var c=G[to<0?cur:to];fill.innerHTML=dot([c.cx,c.cy],c.r);return}
     /* the filled dot runs to the next one (accelerating), hits it and merges into it through hard-radius fillets;
        the struck dot gets knocked a little in the direction of travel and springs back */
-    var A=G[from],B=G[to],r=A.r,dir=B.cx>A.cx?1:-1,fr=r*.28;
+    var A=G[from],B=G[to],r=A.r,dir=B.cx>A.cx?1:-1,fr=r*.42;
     /* run up to the contact point, hold there for a beat (the neck), then strike into the target */
-    var D=B.cx-A.cx,xc=B.cx-dir*(2*r+.35*r),x;
+    var D=B.cx-A.cx,xc=B.cx-dir*(2.75*r),x;
     if(t<.34){var q=t/.34;x=A.cx+(xc-A.cx)*(q*q*(1.6-.6*q))}
     else if(t<.52){x=xc+dir*r*.25*io((t-.34)/.18)}
     else{var q2=cl((t-.52)/.14);x=xc+dir*r*.25+(B.cx-(xc+dir*r*.25))*q2*q2}
