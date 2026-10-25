@@ -2532,7 +2532,7 @@ var prevK=items.map(function(){return 0;});var dots=document.createElement("div"
 var moved=false;function dist(j){var x=(j-cur)%n;if(!moved)return (x+n)%n;if(x>n/2)x-=n;if(x<-n/2)x+=n;return x;}
 function place(animate){var c=vw.clientWidth/2;items.forEach(function(it,j){var k=dist(j);var x=c+k*(SW+G)-SW/2;var jump=Math.abs(k-prevK[j])>1;
  it.style.transition=(!animate||jump)?"none":"";it.style.transform="translateX("+x+"px)";it.classList.toggle("is-active",k===0);prevK[j]=k;});[].forEach.call(dots.children,function(d,j){d.classList.toggle("on",j===cur);});}
-var timer=null,hov=false,reduce=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;function stopAuto(){if(timer){clearInterval(timer);timer=null;}}function startAuto(){stopAuto();if(!hov&&!reduce)timer=setInterval(function(){go(cur+1);},2500);}function go(k){moved=true;cur=((k%n)+n)%n;place(true);startAuto();}
+var timer=null,hov=false,reduce=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;function stopAuto(){if(timer){clearInterval(timer);timer=null;}}function startAuto(){stopAuto();if(!hov&&!reduce)timer=setInterval(function(){if(Date.now()<(window.__slPause||0))return;go(cur+1);},2500);}function go(k){moved=true;cur=((k%n)+n)%n;place(true);startAuto();}
 document.querySelector(".sl-prev").addEventListener("click",function(){go(cur-1);});
 document.querySelector(".sl-next").addEventListener("click",function(){go(cur+1);});
 items.forEach(function(it,j){it.addEventListener("click",function(e){if(j!==cur){e.preventDefault();go(j);}});});
@@ -3755,6 +3755,8 @@ magnetAll();setTimeout(magnetAll,1500);
       setTimeout(function(){d.animate([{translate:'0 0'},{translate:(step*3)+'px 0'},{translate:'0 0'}],{duration:220,easing:'cubic-bezier(.3,1.6,.5,1)'})},window.DT_HALF);
       },200+i*STEP)});
     return 200+seq.length*STEP}
+  /* any press on the controls hands the slider over to the visitor: autoplay (and its merging dots) pauses for a while */
+  ['pointerdown','keydown'].forEach(function(ev){A.addEventListener(ev,function(){window.__slPause=Date.now()+9000},true)});
   [pv,nx].forEach(function(b){b.addEventListener('pointerdown',function(){if(rm)return;
       /* how far the knock has to travel: from the arrow's side to the dot that will be active after this press */
       var dots=[].slice.call(ds.querySelectorAll('.sl-dot')),N=dots.length,on=dots.findIndex(function(d){return d.classList.contains('on')});
