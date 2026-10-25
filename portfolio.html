@@ -1772,6 +1772,8 @@ input.fv-bad:not([type=checkbox]){border-bottom-color:transparent !important}
 @media (hover:hover){:is(.f-mail,.m-mail).roll:hover .rl:not(.at){transform:none !important}}
 :is(.f-mail,.m-mail).roll.tap .rl:not(.at){transform:none !important}
 @media (hover:hover){:is(.f-mail,.m-mail):hover{opacity:1 !important;color:#fff !important}}
+@media (hover:hover){.sl-goo .sl-dot:hover{border-color:#fff !important;transform:scale(1.3)}}
+.sl-goo .sl-dot.sl-hit{border-color:#fff !important;box-shadow:0 0 6px rgba(255,255,255,.6)}
 </style>
 </head>
 <body data-page="portfolio" data-title-ru="Портфолио — MARIART" data-title-en="Portfolio — MARIART"><script>(function(){var w=document.documentElement.clientWidth;document.body.style.zoom=w>=1024?w/1920:(w>600?w/600:(w<360?w/360:""));document.documentElement.classList.toggle("tab",w>600&&w<1024)})();</script>
@@ -3386,20 +3388,22 @@ magnetAll();setTimeout(magnetAll,1500);
     ds.style.setProperty('left',dl+'px','important');ds.style.setProperty('top',(nx.offsetTop+(nx.offsetHeight-ds.offsetHeight)/2)+'px','important');
     pv.style.setProperty('left',(dl-G-pv.offsetWidth)+'px','important')}
   lay();addEventListener('resize',lay);addEventListener('load',lay);setTimeout(lay,300);
-  var rm=matchMedia('(prefers-reduced-motion: reduce)').matches;
-  function fly(btn){if(rm)return;setTimeout(function(){
-      var on=ds.querySelector('.sl-dot.on');if(!on)return;
-      var s=document.createElement('i');s.className='sl-spark';A.appendChild(s);
-      var x0=btn.offsetLeft+btn.offsetWidth/2,y0=btn.offsetTop+btn.offsetHeight/2,
-          x1=ds.offsetLeft+on.offsetLeft+on.offsetWidth/2,y1=ds.offsetTop+on.offsetTop+on.offsetHeight/2,k=btn.offsetWidth/10;
-      var mx=(x0+x1)/2,my=Math.min(y0,y1)-14;   /* a small arc over the row */
-      var an=s.animate([{transform:'translate('+x0+'px,'+y0+'px) scale('+k+')',opacity:1},
-                        {transform:'translate('+mx+'px,'+my+'px) scale('+(k*.45)+')',opacity:1,offset:.5},
-                        {transform:'translate('+x1+'px,'+y1+'px) scale(1)',opacity:1,offset:.92},
-                        {transform:'translate('+x1+'px,'+y1+'px) scale(1.5)',opacity:0}],{duration:440,easing:'cubic-bezier(.65,0,.35,1)'});
-      an.onfinish=function(){s.remove()}},60)}
-  /* the fill waits for the ring to arrive (pointerdown comes before the click that switches the slide) */
-  [pv,nx].forEach(function(b){b.addEventListener('pointerdown',function(){if(!rm)ds._delayUntil=performance.now()+330});b.addEventListener('click',function(){fly(b)})});
+  var rm=matchMedia('(prefers-reduced-motion: reduce)').matches,STEP=75;
+  /* an arrow press knocks the dot next to it; the knock runs dot to dot like a Newton's cradle (each outline flashes
+     white and jolts) until it reaches the dot of the new slide, and only then the fill flows into that dot */
+  function wave(btn,n){if(rm)return;var dots=[].slice.call(ds.querySelectorAll('.sl-dot')),N=dots.length;if(!N)return;
+    var on=dots.findIndex(function(d){return d.classList.contains('on')});if(on<0)return;
+    var fromEnd=btn===nx,start=fromEnd?N-1:0,step=fromEnd?-1:1,seq=[];
+    for(var k=start;;k+=step){seq.push(k);if(k===on||seq.length>N)break}
+    seq.forEach(function(k,i){setTimeout(function(){var d=dots[k];d.classList.add('sl-hit');
+      d.animate([{translate:'0 0'},{translate:(step*3)+'px 0'},{translate:'0 0'}],{duration:220,easing:'cubic-bezier(.3,1.6,.5,1)'});
+      setTimeout(function(){d.classList.remove('sl-hit')},260)},120+i*STEP)});
+    return 120+seq.length*STEP}
+  [pv,nx].forEach(function(b){b.addEventListener('pointerdown',function(){if(rm)return;
+      /* how far the knock has to travel: from the arrow's side to the dot that will be active after this press */
+      var dots=[].slice.call(ds.querySelectorAll('.sl-dot')),N=dots.length,on=dots.findIndex(function(d){return d.classList.contains('on')});
+      var tgt=b===nx?(on+1)%N:(on-1+N)%N,len=b===nx?N-tgt:tgt+1;ds._delayUntil=performance.now()+120+len*STEP});
+    b.addEventListener('click',function(){setTimeout(function(){wave(b)},0)})});
 })();
 </script>
 </body>
