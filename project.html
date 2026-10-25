@@ -3411,18 +3411,14 @@ new MutationObserver(function(){setTimeout(centerHero,80)}).observe(R,{attribute
    (stroke-dashoffset), progress follows the scroll: rules first, then the connectors, then the arcs; scrolling back
    erases them. prefers-reduced-motion: everything is simply shown. */
 var socN=0;
-function socPath(A,B,v,f){/* straight inner-tangent diagonal; right at the touch point a short bend carries it under the circle */
-  var r=A.r,D=Math.hypot(B.cx-A.cx,B.cy-A.cy),a=Math.asin(Math.min(1,2*r/D)),
-    th=a*.62,be=16*Math.PI/180,
-    t=[Math.cos(th),v*Math.sin(th)],n=[Math.sin(th),-v*Math.cos(th)],
-    dir=[t[0]*Math.cos(be)+n[0]*Math.sin(be),t[1]*Math.cos(be)+n[1]*Math.sin(be)],
-    P=[A.cx+r*Math.sin(th),A.cy-v*r*Math.cos(th)],M=[(A.cx+B.cx)/2,(A.cy+B.cy)/2],d=[Math.cos(a),v*Math.sin(a)],
-    MT=Math.sqrt(Math.max(0,D*D/4-r*r)),S1=[M[0]-d[0]*MT*.86,M[1]-d[1]*MT*.86],
-    h=.5*Math.hypot(S1[0]-P[0],S1[1]-P[1]),Q=[2*M[0]-P[0],2*M[1]-P[1]],S2=[2*M[0]-S1[0],2*M[1]-S1[1]],
-    E=[P[0]-dir[0]*r*.5,P[1]-dir[1]*r*.5],E2=[Q[0]+dir[0]*r*.5,Q[1]+dir[1]*r*.5],
-    p=function(x){return f(x[0])+' '+f(x[1])};
-  return 'M'+p(E)+'L'+p(P)+'C'+p([P[0]+dir[0]*h,P[1]+dir[1]*h])+' '+p([S1[0]-d[0]*h,S1[1]-d[1]*h])+' '+p(S1)+
-    'L'+p(S2)+'C'+p([S2[0]+d[0]*h,S2[1]+d[1]*h])+' '+p([Q[0]-dir[0]*h,Q[1]-dir[1]*h])+' '+p(Q)+'L'+p(E2)}
+function socPath(A,B,v,f){/* plain straight diagonals at (almost exactly) the inner-tangent angle, no bends: set a hair
+   flatter so each one cuts just inside the circle's edge and runs on underneath it (hidden by the circle mask) */
+  var r=A.r,D=Math.hypot(B.cx-A.cx,B.cy-A.cy),ph=Math.asin(Math.min(1,1.84*r/D)),d=[Math.cos(ph),v*Math.sin(ph)],
+    M=[(A.cx+B.cx)/2,(A.cy+B.cy)/2],
+    /* run from the crossing to where the line meets the circle, plus a little way underneath it */
+    mx=M[0]-A.cx,my=M[1]-A.cy,bb=(mx*d[0]+my*d[1]),cc=mx*mx+my*my-r*r,dis=Math.max(0,bb*bb-cc),L=(bb-Math.sqrt(dis))+.3*r,
+    P=[M[0]-d[0]*L,M[1]-d[1]*L],Q=[M[0]+d[0]*L,M[1]+d[1]*L];
+  return 'M'+f(P[0])+' '+f(P[1])+'L'+f(Q[0])+' '+f(Q[1])}
 /* o: {cls,W,H,sw,dash,rules:[y],x0,x1,circles:[{cx,cy,r}],pairs:[[A,B]],arcs:[d],ow (outline width)} */
 function socGeo(o){var f=function(n){return (+n).toFixed(2)},id='sg'+(++socN),big='x="-4000" y="-4000" width="'+(o.W+8000)+'" height="'+(o.H+8000)+'"',
     defs='<mask id="'+id+'h" maskUnits="userSpaceOnUse" '+big+'><rect '+big+' fill="#fff"/>'+o.circles.map(function(c){return '<circle cx="'+f(c.cx)+'" cy="'+f(c.cy)+'" r="'+f(c.r-(o.ow||1)/2)+'" fill="#000"/>'}).join('')+'</mask>',
