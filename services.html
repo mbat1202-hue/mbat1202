@@ -1132,6 +1132,9 @@ footer .lgx,.m-frow .lgx{font-size:24px}
 /* phone/tablet menu button: a solid white button like the footer [contacts] button, easy to see and to hit */
 .m-burger{position:relative;z-index:60;display:inline-flex;align-items:center;justify-content:center;height:40px;padding:0 20px;background:#fff;color:#000;border:0;font:500 15px/1 Inter,system-ui,sans-serif;letter-spacing:-.01em;text-transform:lowercase;cursor:pointer}
 .m-burger .bk-l,.m-burger .bk-r{display:none}
+/* while the menu is open the card (with its own close cross) takes the button's place: the button hides instead of peeking out above the card */
+.m-burger{transition:opacity .25s ease,visibility 0s linear 0s}
+html.mm-open .m-burger{opacity:0;visibility:hidden;transition:opacity .2s ease,visibility 0s linear .2s}
 /* touch: a tap on a link or button is a tap — no long-press link preview, no text selection on the label */
 .m-view :is(a,button,.m-burger),.mm :is(a,button),.ck :is(a,button){-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
 .mm{position:fixed;inset:0;z-index:70;pointer-events:none;background:rgba(0,0,0,0);transition:background .5s ease}
