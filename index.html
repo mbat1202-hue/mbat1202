@@ -1857,6 +1857,7 @@ input.fv-bad:not([type=checkbox]){border-bottom-color:transparent !important}
 }
 .sl-arrows .sl-btn.ar.tap{--border:rgba(255,255,255,.6)}
 .sl-arrows .sl-btn.ar.sl-hit{--border:#fff}
+.sl-goo .sl-dot.sl-hit{box-shadow:none !important;border-color:#fff !important}
 </style>
 </head>
 <body data-page="home" data-title-ru="MARIART — UI/UX-дизайнер" data-title-en="MARIART — UI/UX Designer"><script>(function(){var w=document.documentElement.clientWidth;document.body.style.zoom=w>=1024?w/1920:(w>600?w/600:(w<360?w/360:""));document.documentElement.classList.toggle("tab",w>600&&w<1024)})();</script>
@@ -3326,9 +3327,9 @@ $$('.sl-dots').forEach(function(box){
     if(cur<0||!anim||reduce){cancelAnimationFrame(raf);raf=0;from=-1;cur=to=i;render(1);return}
     if(raf){cur=lastT<.5?from:to;cancelAnimationFrame(raf);raf=0}   // rapid clicks: continue from where the fill visibly is
     if(i===cur&&!raf){to=i;render(1);return}
-    from=cur;to=i;var dl=Math.max(0,(box._delayUntil||0)-performance.now());mode=dl>0?'flood':'run';DUR=mode==='flood'?460:720+170*(Math.abs(i-from)-1);t0=performance.now()+dl;raf=requestAnimationFrame(loop);
+    from=cur;to=i;var dl=Math.max(0,(box._delayUntil||0)-performance.now());mode='run';DUR=720+170*(Math.abs(i-from)-1);t0=performance.now()+dl;raf=requestAnimationFrame(loop);
   }
-  new MutationObserver(function(){upd(true)}).observe(box,{subtree:true,attributes:true,attributeFilter:['class']});
+  new MutationObserver(function(){if(box._beforeUpd)box._beforeUpd();upd(true)}).observe(box,{subtree:true,attributes:true,attributeFilter:['class']});
   setTimeout(function(){upd(false)},50);addEventListener('resize',function(){upd(false)});
 });
 
@@ -3702,6 +3703,18 @@ magnetAll();setTimeout(magnetAll,1500);
       var dots=[].slice.call(ds.querySelectorAll('.sl-dot')),N=dots.length,on=dots.findIndex(function(d){return d.classList.contains('on')});
       var tgt=b===nx?(on+1)%N:(on-1+N)%N,len=b===nx?N-tgt:tgt+1;ds._delayUntil=performance.now()+200+(len-1)*STEP+40});
     b.addEventListener('click',function(){setTimeout(function(){wave(b)},0)})});
+  /* autoplay: when the slide changes by itself, the "next" (or "prev") arrow plays the same press — its stroke runs,
+     it jolts, and passes the signal along the dots to the new one — so the arrows are never silent */
+  var lastUser=0,lastOn=-1;
+  ['pointerdown','keydown','wheel','touchstart'].forEach(function(ev){var sv=document.querySelector('.sl');(sv||A).addEventListener(ev,function(){lastUser=performance.now()},{passive:true});A.addEventListener(ev,function(){lastUser=performance.now()},{passive:true})});
+  function onIdx(){return [].slice.call(ds.querySelectorAll('.sl-dot')).findIndex(function(d){return d.classList.contains('on')})}
+  setTimeout(function(){lastOn=onIdx()},100);
+  ds._beforeUpd=function(){var i=onIdx();if(i<0||i===lastOn){return}var prev=lastOn;lastOn=i;
+    if(rm||prev<0||performance.now()-lastUser<900)return;
+    var N=ds.querySelectorAll('.sl-dot').length,b=(i===(prev+1)%N)?nx:(i===(prev-1+N)%N?pv:(i>prev?nx:pv));
+    var len=b===nx?N-i:i+1;ds._delayUntil=performance.now()+200+(len-1)*STEP+40;
+    if(!b.classList.contains('ar-go')){b.classList.add('ar-go');setTimeout(function(){b.classList.remove('ar-go')},1600)}
+    setTimeout(function(){wave(b)},0)};
 })();
 </script>
 <script>(function(){
