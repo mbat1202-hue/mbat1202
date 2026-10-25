@@ -1581,6 +1581,14 @@ form.dc-form:has(.fv-inl:not(.out)) .f-status{top:calc(930/1920*100cqw) !importa
 /* phone portfolio: photo first, then the [view the project] button under it */
 .mp-img + .mp-btn{margin-top:10px}
 html.mm-open .m-burger.tap,html.mm-open .m-burger{opacity:0 !important}
+/* phone socials: one row of three bigger circles (geometry in fixes.js) */
+.m-circles{aspect-ratio:360/96 !important}
+.m-circles .sg-in{height:96px !important}
+.m-circles .m-c{width:96px !important;height:96px !important}
+.m-circles .m-c .m-tg{width:40px !important;height:40px !important}
+/* phone page titles: the caption plate is bigger and its letters sit optically in the middle of the plate
+   (text-box trims the line box to cap height and baseline, so equal padding = equal air above and below the capitals) */
+.m-view .mp-sub{font-size:19px !important;padding:6px 8px !important;line-height:1 !important;text-box:trim-both cap alphabetic}
 </style>
 </head>
 <body data-page="portfolio" data-title-ru="Портфолио — MARIART" data-title-en="Portfolio — MARIART"><script>(function(){var w=document.documentElement.clientWidth;document.body.style.zoom=w>=1024?w/1920:(w>600?w/600:(w<360?w/360:""));document.documentElement.classList.toggle("tab",w>600&&w<1024)})();</script>
@@ -2034,8 +2042,16 @@ var timer=null,hov=false,reduce=window.matchMedia&&window.matchMedia("(prefers-r
 document.querySelector(".sl-prev").addEventListener("click",function(){go(cur-1);});
 document.querySelector(".sl-next").addEventListener("click",function(){go(cur+1);});
 items.forEach(function(it,j){it.addEventListener("click",function(e){if(j!==cur){e.preventDefault();go(j);}});});
-vw.addEventListener("pointerdown",function(e){sx=e.clientX;});
+/* mouse drag / touch swipe: the slides are links, so a drag must not start the browser's own link drag (ghost image)
+   and must not end in a click that opens the project; a horizontal trackpad swipe turns the slider instead of scrolling the page */
+var dragged=false;
+vw.addEventListener("dragstart",function(e){e.preventDefault();});
+vw.addEventListener("pointerdown",function(e){sx=e.clientX;dragged=false;});
+vw.addEventListener("pointermove",function(e){if(sx!==null&&Math.abs(e.clientX-sx)>8)dragged=true;});
 vw.addEventListener("pointerup",function(e){if(sx===null)return;var dx=e.clientX-sx;sx=null;if(Math.abs(dx)>60){go(dx<0?cur+1:cur-1);}});
+vw.addEventListener("pointercancel",function(){sx=null;});
+vw.addEventListener("click",function(e){if(dragged){e.preventDefault();e.stopPropagation();dragged=false;}},true);
+var wl=0;vw.addEventListener("wheel",function(e){if(Math.abs(e.deltaX)<=Math.abs(e.deltaY))return;e.preventDefault();var t=Date.now();if(t-wl<700||Math.abs(e.deltaX)<12)return;wl=t;go(e.deltaX>0?cur+1:cur-1);},{passive:false});
 window.addEventListener("resize",function(){place(false);});
 place(false);
 vw.addEventListener("mouseenter",function(){hov=true;stopAuto();});vw.addEventListener("mouseleave",function(){hov=false;startAuto();});/* autoplay starts only once the slider is on screen, so the first slide is seen at the left edge */if("IntersectionObserver" in window){var sio=new IntersectionObserver(function(es){if(es[0].isIntersecting){sio.disconnect();startAuto();}},{threshold:.4});sio.observe(vw);}else startAuto();})();</script>
@@ -2559,8 +2575,14 @@ function fitTitles(){$$('.m-view .mp-title').forEach(function(h){if(!h.offsetPar
   var sub=h.parentNode.querySelector('.mp-sub');if(sub&&sub.offsetParent===h.offsetParent){var cy=h.offsetHeight/2;
     /* optical centre: the middle of the capital letters (baseline minus half the cap height), not the middle of the line box */
     if(typeof hm!=='undefined'&&hm){var g=hm.m(h,'H'),lh=h.offsetHeight;cy=(lh-(g.fa+g.fd))/2+g.fa-g.aa/2}
-    var sg=hm&&hm.m?hm.m(sub,'H'):null,sh=sub.offsetHeight,scy=sg?((sh-(sg.fa+sg.fd))/2+sg.fa-sg.aa/2):sh/2;
+    var trim=window.CSS&&CSS.supports&&CSS.supports('text-box','trim-both cap alphabetic'),sg=!trim&&hm&&hm.m?hm.m(sub,'H'):null,sh=sub.offsetHeight,scy=sg?((sh-(sg.fa+sg.fd))/2+sg.fa-sg.aa/2):sh/2;
     sub.style.top=(h.offsetTop+cy-scy).toFixed(1)+'px'}})}
+/* phone footer: the e-mail spans the container from edge to edge too */
+function fitMail(){if(R.classList.contains('tab'))return;$$('.m-view .m-mail').forEach(function(a){if(!a.offsetParent)return;
+  var par=a.parentNode,cs=getComputedStyle(par),avail=par.clientWidth-parseFloat(cs.paddingLeft)-parseFloat(cs.paddingRight);
+  a.style.whiteSpace='nowrap';a.style.display='inline-block';a.style.fontSize='100px';var w=a.scrollWidth;
+  if(w>0&&avail>0)a.style.fontSize=(100*avail/w).toFixed(2)+'px';})}
+var _ft=fitTitles;fitTitles=function(){_ft();fitMail()};
 fitTitles();addEventListener('load',fitTitles);[300,1500,3000].forEach(function(t){setTimeout(fitTitles,t)});addEventListener('resize',fitTitles);
 if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fitTitles);
 new MutationObserver(function(){setTimeout(fitTitles,30);setTimeout(fitTitles,900)}).observe(R,{attributes:true,attributeFilter:['data-lang']});
@@ -2859,9 +2881,17 @@ if(!matchMedia('(hover:hover)').matches&&'IntersectionObserver' in window){var s
 $$('.f-mail,.m-mail').forEach(function(a){if(a.querySelector('.rl'))return;var t=a.textContent.trim();a.setAttribute('aria-label',t);a.textContent='';
   t.split('').forEach(function(ch,i){var s=document.createElement('span');s.className='rl';s.setAttribute('aria-hidden','true');s.style.setProperty('--i',i);s.textContent=ch;a.appendChild(s)});a.classList.add('roll')});
 
-/* ---------- phone socials: one tangent composition (tg + Behance on the left margin, LinkedIn on the right) ---------- */
-(function(){var g=document.querySelector('.m-circles .sg-in');if(!g||g.querySelector('.sg-geo'))return;g.insertAdjacentHTML('afterbegin','<svg class="sg-geo" width="360" height="142.286" viewBox="0 0 360 142.286" aria-hidden="true" fill="none" stroke="#3c3c3c" stroke-width=".7"><line x1="-400" y1="0.40" x2="760" y2="0.40"/><line x1="-400" y1="71.14" x2="760" y2="71.14"/><line x1="-400" y1="141.89" x2="760" y2="141.89"/><g stroke-dasharray="4.5 3.2"><path d="M215.57 0.00A35.57 35.57 0 0 1 215.57 71.14"/><path d="M251.14 0.00A35.57 35.57 0 0 1 251.14 71.14"/><path d="M144.43 0.00A35.57 35.57 0 0 0 144.43 71.14"/><path d="M108.86 0.00A35.57 35.57 0 0 0 108.86 71.14"/><path d="M340.00 71.14A35.57 35.57 0 0 1 340.00 142.29"/><path d="M20.00 71.14A35.57 35.57 0 0 0 20.00 142.29"/><line x1="65.74" y1="72.63" x2="294.26" y2="140.80"/><line x1="65.74" y1="140.80" x2="294.26" y2="72.63"/></g></svg>');
-  var cs=$$('.m-c',g);if(cs[0]){cs[0].style.left='144.428px';cs[0].style.top='0'}if(cs[1]){cs[1].style.left='20px';cs[1].style.top='71.143px'}if(cs[2]){cs[2].style.left='268.857px';cs[2].style.top='71.143px'}})();
+/* ---------- phone socials: the three circles in one row, big enough to tap, linked by dashed diagonals ----------
+   360-wide frame (scaled to the screen): circles r=48 centred at 60/180/300 touch both rules; in each gap the two
+   inner common tangents of the neighbouring circles cross — that is the dashed X */
+(function(){var g=document.querySelector('.m-circles .sg-in');if(!g||g.querySelector('.sg-geo'))return;
+  var X=function(c){return '<line x1="'+(c-36)+'" y1="0" x2="'+(c+36)+'" y2="96"/><line x1="'+(c-36)+'" y1="96" x2="'+(c+36)+'" y2="0"/>'};
+  g.insertAdjacentHTML('afterbegin','<svg class="sg-geo" width="360" height="96" viewBox="0 0 360 96" aria-hidden="true" fill="none" stroke="#3c3c3c" stroke-width=".7"><line x1="-400" y1="0.35" x2="760" y2="0.35"/><line x1="-400" y1="95.65" x2="760" y2="95.65"/><g stroke-dasharray="4.5 3.2">'+X(120)+X(240)+'<path d="M12 0A48 48 0 0 0 12 96"/><path d="M348 0A48 48 0 0 1 348 96"/></g></svg>');
+  var cs=$$('.m-c',g),pos={tg:132},ord=[];cs.forEach(function(c){ord.push(c)});
+  /* Behance left, Telegram in the middle, LinkedIn right */
+  var tg=cs.filter(function(c){return c.classList.contains('tg')})[0],rest=cs.filter(function(c){return c!==tg});
+  [[rest[0],12],[tg,132],[rest[1],252]].forEach(function(p){if(p[0]){p[0].style.left=p[1]+'px';p[0].style.top='0'}});
+})();
 
 /* ---------- cookies notice + Yandex Metrica (loaded only after "accept"; counter id lives in metrika.json) ---------- */
 (function(){
