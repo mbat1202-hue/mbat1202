@@ -1765,6 +1765,23 @@ input.fv-bad:not([type=checkbox]){border-bottom-color:transparent !important}
 :root .m-head .m-burger.mb-back{background-color:transparent !important;color:#fff !important;box-shadow:inset 0 0 0 1px #fff !important;
   transition:opacity .3s ease .45s,visibility 0s linear .45s,box-shadow .6s cubic-bezier(.08,.32,.78,.12),color .3s ease .3s,translate .2s !important}
 :root .m-head .m-burger.mb-back.mb-fill{box-shadow:inset 0 0 0 60px #fff !important;color:#000 !important}
+/* slider arrows: CodePen-style micro-interaction (fixes.js adds .ar-go for 1.6 s on press) */
+.sl-arrows .sl-btn.ar{position:absolute;overflow:visible;-webkit-mask-image:radial-gradient(closest-side,#000 99%,transparent 100%);mask-image:radial-gradient(closest-side,#000 99%,transparent 100%)}
+.sl-btn.ar .ar-ring{position:absolute;inset:-1px;width:calc(100% + 2px);height:calc(100% + 2px);fill:none;stroke:currentColor;stroke-width:1.5;
+  stroke-dasharray:121 121;stroke-dashoffset:121;transform:rotate(-90deg);pointer-events:none}
+.sl-btn.ar .lc{position:relative;overflow:visible}
+.sl-btn.ar .lc path:last-child{transform-box:fill-box}
+.sl-btn.ar.ar-go .ar-ring{animation:arRing 1s ease forwards .3s}
+.sl-btn.ar.ar-go .lc{animation:arFly 1.6s ease forwards}
+.sl-btn.ar.ar-l.ar-go .lc{animation-name:arFlyL}
+.sl-btn.ar.ar-go .lc path:last-child{animation:arFold 1.6s ease forwards}
+.sl-btn.ar .lc path:last-child{transform-origin:100% 50%}
+.sl-btn.ar.ar-l .lc path:last-child{transform-origin:0 50%}
+@keyframes arRing{52%{transform:rotate(-270deg);stroke-dashoffset:0}52.1%{transform:rotate(-450deg);stroke-dashoffset:0}100%{transform:rotate(-270deg);stroke-dashoffset:121}}
+@keyframes arFly{0%,100%{transform:translateX(0);opacity:1}23%{transform:translateX(17px);opacity:1}24%,80%{transform:translateX(-22px);opacity:0}81%{transform:translateX(-22px);opacity:1}}
+@keyframes arFlyL{0%,100%{transform:translateX(0);opacity:1}23%{transform:translateX(-17px);opacity:1}24%,80%{transform:translateX(22px);opacity:0}81%{transform:translateX(22px);opacity:1}}
+@keyframes arFold{0%,100%{transform:scaleY(1)}20%,80%{transform:scaleY(.1)}}
+@media (prefers-reduced-motion:reduce){.sl-btn.ar .ar-ring,.sl-btn.ar .lc,.sl-btn.ar .lc path{animation:none !important}}
 </style>
 </head>
 <body data-page="contacts" data-title-ru="Контакты — MARIART" data-title-en="Contacts — MARIART"><script>(function(){var w=document.documentElement.clientWidth;document.body.style.zoom=w>=1024?w/1920:(w>600?w/600:(w<360?w/360:""));document.documentElement.classList.toggle("tab",w>600&&w<1024)})();</script>
@@ -3284,6 +3301,18 @@ magnetAll();setTimeout(magnetAll,1500);
     var cur=parseFloat(getComputedStyle(cb).top)||0;cb.style.setProperty('top',(cur+(base-bot)/z).toFixed(2)+'px','important')})}
   al();addEventListener('resize',al);addEventListener('load',al);if(document.fonts&&document.fonts.ready)document.fonts.ready.then(al);
   new MutationObserver(function(){setTimeout(al,60)}).observe(R,{attributes:true,attributeFilter:['data-lang']});
+})();
+
+/* ---------- slider arrows: micro-interaction after aaroniker's "Arrow micro interaction" (CodePen BbPpOj) ----------
+   on press the circle is traced once around and erased again while it spins, the arrow shoots out in its direction,
+   its head folds flat, and it slides back in from the other side */
+(function(){var bs=document.querySelectorAll('.sl-arrows .sl-btn');if(!bs.length)return;
+  var rm=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  Array.prototype.forEach.call(bs,function(b){if(b.querySelector('.ar-ring'))return;
+    b.classList.add('ar');if(b.classList.contains('sl-prev'))b.classList.add('ar-l');
+    b.insertAdjacentHTML('afterbegin','<svg class="ar-ring" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="19.25"/></svg>');
+    b.addEventListener('click',function(){if(rm||b.classList.contains('ar-go'))return;b.classList.add('ar-go');setTimeout(function(){b.classList.remove('ar-go')},1600)});
+  });
 })();
 </script>
 </body>
