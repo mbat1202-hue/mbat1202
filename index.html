@@ -1119,6 +1119,21 @@ img.mk-d{-webkit-mask:none !important;mask:none !important;background:none !impo
 #ldr .l-code b{color:rgba(255,255,255,.8)}
 #ldr .l-pct{position:absolute;left:50%;top:50%;z-index:1;transform:translate(-50%,-50%)}
 #ldr.done .l-pct{opacity:0;transform:translate(-50%,-90%)}
+/* loader: top line and code sit on the site's container (same side gutters as header/.wrap); the labels use the
+   type of the "discuss" block (@MBAT1202 / 2026): Inter 700, uppercase, -.02em, 33px on the 1920 design */
+#ldr{padding-left:calc(80/1920*100vw);padding-right:calc(80/1920*100vw)}
+#ldr .l-top{font-size:calc(33/1920*100vw);font-weight:700;letter-spacing:-.02em;line-height:1;text-transform:uppercase;opacity:.5}
+#ldr .l-code{left:calc(80/1920*100vw);top:calc(clamp(16px,2.2vw,40px) + 33/1920*100vw + 24px)}
+@media (max-width:1023px){
+  #ldr{padding-left:calc(20/600*100vw);padding-right:calc(20/600*100vw)}
+  #ldr .l-top{font-size:calc(16/600*100vw)}
+  #ldr .l-code{left:calc(20/600*100vw);top:calc(clamp(16px,2.2vw,40px) + 16/600*100vw + 18px)}
+}
+@media (max-width:600px){
+  #ldr{padding-left:20px;padding-right:20px}
+  #ldr .l-top{font-size:16px}
+  #ldr .l-code{left:20px;top:calc(clamp(16px,2.2vw,40px) + 34px)}
+}
 
 /* =================== fixes layer =================== */
 :root{--line:#444}
@@ -2749,7 +2764,7 @@ try{sessionStorage.setItem('mariart-ldr','1')}catch(e){}
 R.classList.add('ldr-on');
 var L=document.createElement('div');L.id='ldr';L.setAttribute('aria-hidden','true');
 var col='<span class="dg"><span class="dgs">'+'0123456789'.split('').map(function(d){return '<b>'+d+'</b>'}).join('')+'</span></span>';
-L.innerHTML='<div class="l-top"><span class="l-ttl">MARIART</span><span>portfolio — 2026</span></div>'+
+L.innerHTML='<div class="l-top"><span class="l-ttl">MARIART</span><span class="l-tg">@mbat1202</span></div>'+
   '<div class="l-bot"><div class="l-code"></div><div class="l-pct"><span class="l-num">'+col+col+col+'</span><span class="l-per">%</span><span class="l-gl" data-t=""></span></div></div><i class="l-bar"></i>';
 R.appendChild(L);
 var digits=$$('.dgs',L), pct=L.querySelector('.l-pct'), gl=L.querySelector('.l-gl'), code=L.querySelector('.l-code'), bar=L.querySelector('.l-bar');
