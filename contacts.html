@@ -1816,6 +1816,7 @@ input.fv-bad:not([type=checkbox]){border-bottom-color:transparent !important}
   .sl-arrows .sl-btn.ar:hover i.ar-i{translate:4px 0}
 }
 .sl-arrows .sl-btn.ar.tap{--border:rgba(255,255,255,.6)}
+.sl-arrows .sl-btn.ar.sl-hit{--border:#fff}
 </style>
 </head>
 <body data-page="contacts" data-title-ru="Контакты — MARIART" data-title-en="Contacts — MARIART"><script>(function(){var w=document.documentElement.clientWidth;document.body.style.zoom=w>=1024?w/1920:(w>600?w/600:(w<360?w/360:""));document.documentElement.classList.toggle("tab",w>600&&w<1024)})();</script>
@@ -3413,6 +3414,9 @@ magnetAll();setTimeout(magnetAll,1500);
     var on=dots.findIndex(function(d){return d.classList.contains('on')});if(on<0)return;
     var fromEnd=btn===nx,start=fromEnd?N-1:0,step=fromEnd?-1:1,seq=[];
     for(var k=start;;k+=step){seq.push(k);if(k===on||seq.length>N)break}
+    /* the arrow itself strikes first: it jolts toward the dots, its ring flashes white, like a struck dot */
+    btn.animate([{translate:'0 0'},{translate:(step*6)+'px 0'},{translate:'0 0'}],{duration:300,easing:'cubic-bezier(.3,1.6,.5,1)'});
+    btn.classList.add('sl-hit');setTimeout(function(){btn.classList.remove('sl-hit')},300);
     seq.forEach(function(k,i){setTimeout(function(){var d=dots[k];d.classList.add('sl-hit');
       d.animate([{translate:'0 0'},{translate:(step*3)+'px 0'},{translate:'0 0'}],{duration:220,easing:'cubic-bezier(.3,1.6,.5,1)'});
       setTimeout(function(){d.classList.remove('sl-hit')},260)},120+i*STEP)});
