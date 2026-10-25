@@ -1756,6 +1756,14 @@ input.fv-bad:not([type=checkbox]){border-bottom-color:transparent !important}
 .sl-arrows .sl-btn.ar.sl-hit{--border:#fff}
 .sl-goo .sl-dot.sl-hit{box-shadow:none !important;border-color:#fff !important}
 .sl-neck{position:absolute;left:0;top:0;overflow:visible;pointer-events:none;z-index:1}
+/* the outline is handed over like the arrow ring: a white stroke runs round each dot, part of it lit, part filling in,
+   then it drains away (no glow) */
+.sl-goo .sl-dot{position:relative;overflow:visible}
+.sl-dot .dt-ring{position:absolute;inset:-2px;width:calc(100% + 4px);height:calc(100% + 4px);fill:none;stroke:#fff;stroke-width:1.1;
+  stroke-dasharray:34.6 34.6;stroke-dashoffset:34.6;transform:rotate(-90deg);pointer-events:none}
+.sl-dot.sl-trace .dt-ring{animation:dtStroke .62s ease forwards}
+@keyframes dtStroke{52%{transform:rotate(-270deg);stroke-dashoffset:0}52.1%{transform:rotate(-450deg);stroke-dashoffset:0}100%{transform:rotate(-270deg);stroke-dashoffset:34.6}}
+@media (prefers-reduced-motion:reduce){.sl-dot .dt-ring{display:none}}
 </style>
 </head>
 <body data-page="about" data-title-ru="Обо мне — MARIART" data-title-en="About — MARIART"><script>(function(){var w=document.documentElement.clientWidth;document.body.style.zoom=w>=1024?w/1920:(w>600?w/600:(w<360?w/360:""));document.documentElement.classList.toggle("tab",w>600&&w<1024)})();</script>
@@ -3491,9 +3499,11 @@ magnetAll();setTimeout(magnetAll,1500);
     /* the arrow kicks the nearest dot: as it jolts, a neck with small radii bridges its ring and the dot's outline
        (like two shapes merged with a corner radius), then snaps — the outline is handed over */
     /* (no neck / glow: the arrow's jolt hands over the outline — the neighbour's outline simply turns fully opaque) */
-    seq.forEach(function(k,i){setTimeout(function(){var d=dots[k];d.classList.add('sl-hit');
+    seq.forEach(function(k,i){setTimeout(function(){var d=dots[k];
+      if(!d.querySelector('.dt-ring'))d.insertAdjacentHTML('beforeend','<svg class="dt-ring" viewBox="0 0 12 12" aria-hidden="true"><circle cx="6" cy="6" r="5.5"/></svg>');
+      d.classList.remove('sl-trace');void d.offsetWidth;d.classList.add('sl-trace');(function(e){clearTimeout(e._tr);e._tr=setTimeout(function(){e.classList.remove('sl-trace')},700)})(d);
       d.animate([{translate:'0 0'},{translate:(step*3)+'px 0'},{translate:'0 0'}],{duration:220,easing:'cubic-bezier(.3,1.6,.5,1)'});
-      setTimeout(function(){d.classList.remove('sl-hit')},260)},200+i*STEP)});
+      },200+i*STEP)});
     return 200+seq.length*STEP}
   [pv,nx].forEach(function(b){b.addEventListener('pointerdown',function(){if(rm)return;
       /* how far the knock has to travel: from the arrow's side to the dot that will be active after this press */
