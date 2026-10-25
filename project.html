@@ -1962,6 +1962,9 @@ input.fv-bad:not([type=checkbox]){border-bottom-color:transparent !important}
 .sl-arrows .sl-btn:focus,.sl-dots .sl-dot:focus{outline:none !important}
 .sl-arrows .sl-btn:focus-visible{outline:none !important;--border:rgba(255,255,255,.6)}
 .sl-dots .sl-dot:focus-visible{outline:none !important;border-color:#fff !important}
+.sl-dot svg.dt-arc{position:absolute;inset:-2px;width:calc(100% + 4px);height:calc(100% + 4px);overflow:visible;pointer-events:none}
+.sl-dot svg.dt-arc path{fill:none;stroke:#fff;stroke-width:1.1;stroke-dasharray:17.3 17.3;stroke-dashoffset:17.3}
+@media (prefers-reduced-motion:reduce){.sl-dot svg.dt-arc{display:none}}
 </style>
 </head>
 <body data-page="project" data-title-ru="Crumb and Co — MARIART" data-title-en="Crumb and Co — MARIART"><script>(function(){var w=document.documentElement.clientWidth;document.body.style.zoom=w>=1024?w/1920:(w>600?w/600:(w<360?w/360:""));document.documentElement.classList.toggle("tab",w>600&&w<1024)})();</script>
@@ -3194,6 +3197,18 @@ $$('.dc-in,.m-form input:not([type=checkbox])').forEach(function(inp){
   if(document.fonts&&document.fonts.ready)document.fonts.ready.then(place);place();setTimeout(place,600);
 });
 
+/* a dot takes the outline over like the arrow ring: the white stroke enters on the side the signal comes from, runs
+   round both halves to the opposite side, then drains away the same way — it leaves from where it will go next.
+   dir: +1 = signal travels to the right, -1 = to the left. Returns the time (ms) the stroke needs to reach the far side. */
+var DT_HALF=150;
+function traceDot(d,dir){
+  var s=d.querySelector('svg.dt-arc');
+  if(!s){d.insertAdjacentHTML('beforeend','<svg class="dt-arc" viewBox="0 0 12 12" aria-hidden="true"><path d="M.5 6A5.5 5.5 0 0 1 11.5 6"/><path d="M.5 6A5.5 5.5 0 0 0 11.5 6"/></svg>');s=d.querySelector('svg.dt-arc')}
+  s.style.transform=dir<0?'scaleX(-1)':'';           /* paths run left→right; mirrored when the signal goes left */
+  var L=17.3;[].forEach.call(s.querySelectorAll('path'),function(p){if(p._a)p._a.cancel();
+    p._a=p.animate([{strokeDashoffset:L},{strokeDashoffset:0,offset:.5},{strokeDashoffset:-L}],{duration:DT_HALF*2,easing:'linear',fill:'none'})});
+  return DT_HALF}
+window.traceDot=traceDot;window.DT_HALF=DT_HALF;
 /* ---------- slider dots: the fill flows from one dot into the next ----------
    The five dots stay real buttons (thin white outlines, clickable, synced with the slide). The white fill is one SVG
    path drawn over them: the union of the circles on the way plus Bézier "necks" between neighbours (concave, like a
@@ -3259,8 +3274,7 @@ $$('.sl-dots').forEach(function(box){
     for(var k=Math.min(from,to)+1;k<Math.max(from,to);k++){var g=G[k],dd=Math.abs(M[0]-g.cx),el=dots[k];if(!el)continue;
       var near=cl(1-(dd-r)/(2.2*r));el.style.transform=near>0?'translateX('+(dir*Math.sin(Math.PI*near)*r*.45).toFixed(2)+'px)':'';
       /* struck by the passing fill: its outline is traced round and drained, like the arrow ring */
-      if(near>.5&&!el._struck){el._struck=1;if(!el.querySelector('.dt-ring'))el.insertAdjacentHTML('beforeend','<svg class="dt-ring" viewBox="0 0 12 12" aria-hidden="true"><circle cx="6" cy="6" r="5.5"/></svg>');
-        el.classList.remove('sl-trace');void el.offsetWidth;el.classList.add('sl-trace');(function(e){clearTimeout(e._tr);e._tr=setTimeout(function(){e.classList.remove('sl-trace');e._struck=0},700)})(el)}}
+      if(near>.3&&!el._struck){el._struck=1;traceDot(el,dir);(function(e){setTimeout(function(){e._struck=0},DT_HALF*2+40)})(el)}}
     /* first contact (as in the reference): the fill reaches out to the still-empty target through a short neck with
        hard little radii — the neck stops at the target's outline (the target's inside is clipped away) — then the
        runner sinks into it and the target fills */
@@ -3630,7 +3644,7 @@ magnetAll();setTimeout(magnetAll,1500);
     ds.style.setProperty('left',dl+'px','important');ds.style.setProperty('top',(nx.offsetTop+(nx.offsetHeight-ds.offsetHeight)/2)+'px','important');
     pv.style.setProperty('left',(dl-G-pv.offsetWidth)+'px','important')}
   lay();addEventListener('resize',lay);addEventListener('load',lay);setTimeout(lay,300);
-  var rm=matchMedia('(prefers-reduced-motion: reduce)').matches,STEP=75;
+  var rm=matchMedia('(prefers-reduced-motion: reduce)').matches,STEP=150;
   /* an arrow press knocks the dot next to it; the knock runs dot to dot like a Newton's cradle (each outline flashes
      white and jolts) until it reaches the dot of the new slide, and only then the fill flows into that dot */
   var NS='http://www.w3.org/2000/svg',nk=document.createElementNS(NS,'svg');nk.setAttribute('class','sl-neck');nk.setAttribute('aria-hidden','true');
@@ -3659,10 +3673,9 @@ magnetAll();setTimeout(magnetAll,1500);
     /* the arrow kicks the nearest dot: as it jolts, a neck with small radii bridges its ring and the dot's outline
        (like two shapes merged with a corner radius), then snaps — the outline is handed over */
     /* (no neck / glow: the arrow's jolt hands over the outline — the neighbour's outline simply turns fully opaque) */
-    seq.forEach(function(k,i){setTimeout(function(){var d=dots[k];
-      if(!d.querySelector('.dt-ring'))d.insertAdjacentHTML('beforeend','<svg class="dt-ring" viewBox="0 0 12 12" aria-hidden="true"><circle cx="6" cy="6" r="5.5"/></svg>');
-      d.classList.remove('sl-trace');void d.offsetWidth;d.classList.add('sl-trace');(function(e){clearTimeout(e._tr);e._tr=setTimeout(function(){e.classList.remove('sl-trace')},700)})(d);
-      d.animate([{translate:'0 0'},{translate:(step*3)+'px 0'},{translate:'0 0'}],{duration:220,easing:'cubic-bezier(.3,1.6,.5,1)'});
+    seq.forEach(function(k,i){setTimeout(function(){var d=dots[k];traceDot(d,step);
+      /* it only moves once the outline has fully come over to it, then it passes it on */
+      setTimeout(function(){d.animate([{translate:'0 0'},{translate:(step*3)+'px 0'},{translate:'0 0'}],{duration:220,easing:'cubic-bezier(.3,1.6,.5,1)'})},DT_HALF);
       },200+i*STEP)});
     return 200+seq.length*STEP}
   [pv,nx].forEach(function(b){b.addEventListener('pointerdown',function(){if(rm)return;
