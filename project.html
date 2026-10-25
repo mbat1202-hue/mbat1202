@@ -3196,7 +3196,7 @@ $$('.sl-dots').forEach(function(box){
   var cid='slc'+Math.random().toString(36).slice(2,7);
   sv.innerHTML='<defs><clipPath id="'+cid+'" clip-rule="evenodd"><path clip-rule="evenodd"/></clipPath></defs><g fill="#fff"></g>';
   box.appendChild(sv);var clip=sv.querySelector('clipPath path'),fill=sv.querySelector('svg > g');
-  var cur=-1,from=-1,to=-1,t0=0,raf=0,DUR=620,lastT=1;
+  var cur=-1,from=-1,to=-1,t0=0,raf=0,DUR=620,lastT=1,mode='run';
   function geo(){return $$('.sl-dot',box).map(function(d){var w=d.offsetWidth;return {cx:d.offsetLeft+w/2,cy:d.offsetTop+d.offsetHeight/2,r:w/2}})}
   var f=function(n){return n.toFixed(2)};
   function circ(c){return 'M'+f(c.cx-c.r)+' '+f(c.cy)+'a'+f(c.r)+' '+f(c.r)+' 0 1 0 '+f(2*c.r)+' 0a'+f(c.r)+' '+f(c.r)+' 0 1 0 '+f(-2*c.r)+' 0Z'}
@@ -3222,6 +3222,11 @@ $$('.sl-dots').forEach(function(box){
   function dot(c,r){return r>.2?'<path d="M'+f(c[0]-r)+' '+f(c[1])+'a'+f(r)+' '+f(r)+' 0 1 0 '+f(2*r)+' 0a'+f(r)+' '+f(r)+' 0 1 0 '+f(-2*r)+' 0Z"/>':''}
   var bumped=null;
   function render(t){var G=geo();if(!G.length)return;clip.setAttribute('d','M-999 -999H9999V9999H-999Z');
+    if(mode==='flood'&&from>=0&&from!==to&&t<1){var Ao=G[from],Bt=G[to],rr=Bt.r;
+      /* arrow press: the old dot drains (shrinks away), the target floods from its outline inwards (a thickening ring) */
+      var ra=Ao.r*(1-io(cl(t/.35))),ri=rr*(1-io(cl((t-.15)/.85))),R1=rr;
+      var ring='<path fill-rule="evenodd" d="'+dot([Bt.cx,Bt.cy],R1).replace(/^<path d="|"\/>$/g,'')+' '+(ri>.2?dot([Bt.cx,Bt.cy],ri).replace(/^<path d="|"\/>$/g,''):'')+'"/>';
+      fill.innerHTML=dot([Ao.cx,Ao.cy],ra)+ring;return}
     if(from<0||t>=1){$$('.sl-dot',box).forEach(function(d){d.style.transform=''});bumped=null}
     if(from<0||from===to||t>=1){var c=G[to<0?cur:to];fill.innerHTML=dot([c.cx,c.cy],c.r);return}
     /* the filled dot runs to the next one (accelerating), hits it and merges into it through hard-radius fillets;
@@ -3259,7 +3264,7 @@ $$('.sl-dots').forEach(function(box){
     if(cur<0||!anim||reduce){cancelAnimationFrame(raf);raf=0;from=-1;cur=to=i;render(1);return}
     if(raf){cur=lastT<.5?from:to;cancelAnimationFrame(raf);raf=0}   // rapid clicks: continue from where the fill visibly is
     if(i===cur&&!raf){to=i;render(1);return}
-    from=cur;to=i;DUR=720+170*(Math.abs(i-from)-1);var dl=Math.max(0,(box._delayUntil||0)-performance.now());t0=performance.now()+dl;raf=requestAnimationFrame(loop);
+    from=cur;to=i;var dl=Math.max(0,(box._delayUntil||0)-performance.now());mode=dl>0?'flood':'run';DUR=mode==='flood'?460:720+170*(Math.abs(i-from)-1);t0=performance.now()+dl;raf=requestAnimationFrame(loop);
   }
   new MutationObserver(function(){upd(true)}).observe(box,{subtree:true,attributes:true,attributeFilter:['class']});
   setTimeout(function(){upd(false)},50);addEventListener('resize',function(){upd(false)});
@@ -3622,14 +3627,18 @@ magnetAll();setTimeout(magnetAll,1500);
     /* the arrow itself strikes first: it jolts toward the dots, its ring flashes white, like a struck dot */
     btn.animate([{translate:'0 0'},{translate:(step*6)+'px 0'},{translate:'0 0'}],{duration:300,easing:'cubic-bezier(.3,1.6,.5,1)'});
     btn.classList.add('sl-hit');setTimeout(function(){btn.classList.remove('sl-hit')},300);
+    /* the arrow's ring flows into the nearest dot's outline (a white ring shrinking from the arrow into that dot) */
+    var nd=dots[start],sp=document.createElement('i');sp.className='sl-spark';A.appendChild(sp);
+    var x0=btn.offsetLeft+btn.offsetWidth/2,y0=btn.offsetTop+btn.offsetHeight/2,x1=ds.offsetLeft+nd.offsetLeft+nd.offsetWidth/2,y1=ds.offsetTop+nd.offsetTop+nd.offsetHeight/2,k0=btn.offsetWidth/10;
+    sp.animate([{transform:'translate('+x0+'px,'+y0+'px) scale('+k0+')',opacity:.9},{transform:'translate('+x1+'px,'+y1+'px) scale(1)',opacity:1}],{duration:200,easing:'cubic-bezier(.65,0,.35,1)',fill:'forwards'}).onfinish=function(){sp.remove()};
     seq.forEach(function(k,i){setTimeout(function(){var d=dots[k];d.classList.add('sl-hit');
       d.animate([{translate:'0 0'},{translate:(step*3)+'px 0'},{translate:'0 0'}],{duration:220,easing:'cubic-bezier(.3,1.6,.5,1)'});
-      setTimeout(function(){d.classList.remove('sl-hit')},260)},120+i*STEP)});
-    return 120+seq.length*STEP}
+      setTimeout(function(){d.classList.remove('sl-hit')},260)},200+i*STEP)});
+    return 200+seq.length*STEP}
   [pv,nx].forEach(function(b){b.addEventListener('pointerdown',function(){if(rm)return;
       /* how far the knock has to travel: from the arrow's side to the dot that will be active after this press */
       var dots=[].slice.call(ds.querySelectorAll('.sl-dot')),N=dots.length,on=dots.findIndex(function(d){return d.classList.contains('on')});
-      var tgt=b===nx?(on+1)%N:(on-1+N)%N,len=b===nx?N-tgt:tgt+1;ds._delayUntil=performance.now()+120+len*STEP});
+      var tgt=b===nx?(on+1)%N:(on-1+N)%N,len=b===nx?N-tgt:tgt+1;ds._delayUntil=performance.now()+200+(len-1)*STEP+40});
     b.addEventListener('click',function(){setTimeout(function(){wave(b)},0)})});
 })();
 </script>
