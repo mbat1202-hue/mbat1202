@@ -1330,6 +1330,10 @@ html:not(.tab) .m-view .m-hb{display:none !important}
 /* phone/tablet glass: the coil sits in the gap between the cards and never crosses a card edge
    (over a card the glass showed the card's straight edge through itself); ~20px of air above and below the drawing */
 .mh-glass-wrap{height:290px !important}
+/* the WebGL canvas is an opaque square painted in the page colour and relies on mix-blend-mode:lighten to disappear over the
+   cards. iOS Safari drops that blend while a neighbour is mid-reveal, so the canvas showed as a dark box over the card above
+   during loading. Clipping the canvas to its own gap means it never lies over a card (the coil itself fits inside). */
+.mh-glass-wrap{overflow:hidden}
 .mh-glass-wrap img,.mh-glass-wrap canvas.coil3d{top:-65px !important;width:440px !important;height:440px !important;margin-left:-220px !important}
 /* scrollbars in the site style: thin, grey on dark */
 html{scrollbar-width:thin;scrollbar-color:#4a4a4a #0d0d0d}
@@ -2529,7 +2533,7 @@ function asterisk(){
   var bars=[[0,1,1],[60,.94,1.08],[118,1.05,.92]];          // slightly uneven, like the reference
   function star(cx,cy,len,w,rot){g.save();g.translate(cx,cy);g.rotate(rot);
     bars.forEach(function(b){g.save();g.rotate(b[0]*Math.PI/180);g.fillRect(-len*b[1]/2,-w*b[2]/2,len*b[1],w*b[2]);g.restore()});g.restore()}
-  var t0=performance.now(), A=520, B=1150, diag=Math.hypot(W,H), base=Math.min(W,H)*.16;
+  var t0=performance.now(), A=950, B=1150, diag=Math.hypot(W,H), base=Math.min(W,H)*.16;
   function e3(x){return x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2}
   function e4in(x){return x*x*x*x}
   L.style.visibility='hidden';
@@ -2538,7 +2542,8 @@ function asterisk(){
     g.globalCompositeOperation='source-over';g.clearRect(0,0,W,H);
     g.fillStyle='#0d0d0d';g.fillRect(0,0,W,H);
     if(t<A){                                                    // white asterisk appears and turns
-      var k=e3(Math.min(1,t/A));g.fillStyle='#fff';star(W/2,H/2,base*k,base*.2*k,(-.6+k*.6)*Math.PI);
+      var u0=Math.min(1,t/A),k=1-Math.pow(1-u0,4);           // grows out of a dot, spinning in
+      g.fillStyle='#fff';star(W/2,H/2,Math.max(.5,base*k),Math.max(.5,base*.2*k),(-1.4+k*1.4)*Math.PI);
     }else{                                                      // it turns into a hole that eats the screen
       if(!R.classList.contains('go')){R.classList.remove('ldr-on');intro()}
       var u=Math.min(1,(t-A)/B), s=1+e4in(u)*diag/(base*.2)*2.4;
@@ -2626,6 +2631,20 @@ var page=(function(){var k=document.body.getAttribute('data-page');if(k)return k
 /* ---------- the language the visitor picked is remembered for the next pages and visits ----------
    (order on load, in the inline language script: ?lang= in the address, then this saved choice, then the system language) */
 new MutationObserver(function(){try{localStorage.setItem('mariart-lang',lang())}catch(e){}}).observe(R,{attributes:true,attributeFilter:['data-lang']});
+
+/* ---------- phone/tablet: the big page titles (PORTFOLIO, SERVICES) span the container from edge to edge ---------- */
+function fitTitles(){$$('.m-view .mp-title').forEach(function(h){if(!h.offsetParent)return;
+  var cs=getComputedStyle(h),avail=h.clientWidth-parseFloat(cs.paddingLeft)-parseFloat(cs.paddingRight);
+  /* measure an unanimated copy of the text in normal layout (the live title may be mid-reveal, split into moving letters) */
+  var m=document.createElement('span');m.textContent=h.textContent.trim();
+  m.style.cssText='position:absolute;visibility:hidden;white-space:nowrap;left:0;top:0;font-size:100px;font-family:'+cs.fontFamily+';font-weight:'+cs.fontWeight+';letter-spacing:'+(parseFloat(cs.letterSpacing)/parseFloat(cs.fontSize)*100)+'px;text-transform:'+cs.textTransform;
+  h.parentNode.appendChild(m);var w=m.offsetWidth;m.remove();
+  if(w>0&&avail>0)h.style.fontSize=(100*avail/w).toFixed(2)+'px';
+  /* the black caption plate stays across the middle of the (now bigger) title, as in the design */
+  var sub=h.parentNode.querySelector('.mp-sub');if(sub&&sub.offsetParent===h.offsetParent){sub.style.top=(h.offsetTop+h.offsetHeight/2-sub.offsetHeight/2).toFixed(1)+'px'}})}
+fitTitles();addEventListener('load',fitTitles);addEventListener('resize',fitTitles);
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fitTitles);
+new MutationObserver(function(){setTimeout(fitTitles,30);setTimeout(fitTitles,900)}).observe(R,{attributes:true,attributeFilter:['data-lang']});
 
 /* ---------- page title follows the language ---------- */
 function setTitle(){var t=document.body.getAttribute('data-title-'+lang());if(t)document.title=t}
