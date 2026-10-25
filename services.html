@@ -1732,24 +1732,20 @@ html footer .f-big{margin-top:110px !important}
 @keyframes atSpin{to{rotate:360deg}}
 @media (prefers-reduced-motion:reduce){:is(.f-mail,.m-mail).roll .rl.at{animation:none !important}}
 
-/* ---------- desktop logo: MARIART ⇄ Maria Art (≈400 ms, reversible) ---------- */
+/* ---------- desktop logo: MARIART ⇄ MARIA ART (≈400 ms, reversible, capitals kept) ----------
+   at the split point a second A is born out of the A (it peels off to the left of it and becomes the end of MARIA);
+   the original A with RT slides right and becomes ART — the word opens into two */
 .d-view header .logo.lgm{white-space:nowrap;padding-right:.12em;margin-right:-.12em}
 .d-view header .logo.lgm .lgc{position:relative;display:inline-block;vertical-align:top;width:var(--wu);text-shadow:none !important;
   transition:translate 1s cubic-bezier(.76,0,.24,1) calc(.15s + var(--i)*45ms),width .4s cubic-bezier(.65,0,.35,1)}
-.d-view header .logo.lgm .lgc b{font-weight:inherit;display:inline-block;white-space:pre;transition:opacity .32s cubic-bezier(.4,0,.2,1),transform .4s cubic-bezier(.65,0,.35,1)}
-.d-view header .logo.lgm .lgc .l{position:absolute;left:0;top:0;opacity:0;transform:translateY(.22em)}
-.d-view header .logo.lgm .lgn{width:0;overflow:hidden}
-.d-view header .logo.lgm .lgn .l{position:relative}
+.d-view header .logo.lgm .lgc b{font-weight:inherit;display:inline-block;white-space:pre}
+.d-view header .logo.lgm .lgc .l{display:none}
+.d-view header .logo.lgm .lgn{width:0;overflow:visible}
+.d-view header .logo.lgm .lgn .l{display:inline-block;position:absolute;left:0;top:0;opacity:0;transform:translateX(0);transition:transform .4s cubic-bezier(.65,0,.35,1),opacity .2s ease}
 .d-view header .logo.lgm:hover span,.d-view header .logo.lgm.tap span{transform:none !important}
 @media (hover:hover){
-  .d-view header .logo.lgm:hover .lgc{width:var(--wl)}
   .d-view header .logo.lgm:hover .lgn{width:calc(var(--wl) + .3em)}
-  .d-view header .logo.lgm:hover .lgc .u{opacity:0;transform:translateY(-.22em)}
-  .d-view header .logo.lgm:hover .lgc .l{opacity:1;transform:none}
-  /* the capital of "Art" and the M stay capitals */
-  .d-view header .logo.lgm:hover .lgc:first-child .u,.d-view header .logo.lgm:hover .lgn + .lgc .u{opacity:1;transform:none}
-  .d-view header .logo.lgm:hover .lgc:first-child .l,.d-view header .logo.lgm:hover .lgn + .lgc .l{opacity:0;transform:translateY(.22em)}
-  .d-view header .logo.lgm:hover .lgc:first-child,.d-view header .logo.lgm:hover .lgn + .lgc{width:var(--wu)}
+  .d-view header .logo.lgm:hover .lgn .l{opacity:1}
 }
 @media (prefers-reduced-motion:reduce){.d-view header .logo.lgm .lgc,.d-view header .logo.lgm .lgc b{transition:none}}
 /* socials: the lines are drawn by scroll (fixes.js socDraw) — the old clip-path wipe and the duplicate pseudo-element
@@ -1827,6 +1823,10 @@ input.fv-bad:not([type=checkbox]){border-bottom-color:transparent !important}
 .sl-spark{position:absolute;left:0;top:0;width:10px;height:10px;margin:-5px 0 0 -5px;border:1px solid #fff;border-radius:50%;box-sizing:border-box;pointer-events:none;z-index:3}
 .sl-arrows .sl-next.ar{left:1716px !important}
 .sl-goo .sl-dot.sl-hit{border-color:#fff !important;box-shadow:0 0 6px rgba(255,255,255,.55)}
+/* footer e-mail: no letter roll at all — only the @ spins */
+@media (hover:hover){:is(.f-mail,.m-mail).roll:hover .rl:not(.at){transform:none !important}}
+:is(.f-mail,.m-mail).roll.tap .rl:not(.at){transform:none !important}
+@media (hover:hover){:is(.f-mail,.m-mail):hover{opacity:1 !important;color:#fff !important}}
 </style>
 </head>
 <body data-page="services" data-title-ru="Услуги — MARIART" data-title-en="Services — MARIART"><script>(function(){var w=document.documentElement.clientWidth;document.body.style.zoom=w>=1024?w/1920:(w>600?w/600:(w<360?w/360:""));document.documentElement.classList.toggle("tab",w>600&&w<1024)})();</script>
@@ -2904,10 +2904,10 @@ if(logo){logo.href='index.html';splitMorph(logo)}
    Every letter is a fixed-width cell whose width animates between the measured upper/lower glyph widths: no jumps.
    Touch screens never hover, so the logo just stays MARIART there. */
 function splitMorph(el){
-  var U='MARIART',Lo='MariArt',cells=U.split('').map(function(c,i){return [c,Lo[i]]});
+  var U='MARIART',Lo='MARIART',cells=U.split('').map(function(c,i){return [c,Lo[i]]});   /* capitals stay capitals */
   el.setAttribute('aria-label','MARIART');el.classList.add('lgm');
   var h=cells.map(function(p,i){var cell='<span class="lgc" aria-hidden="true" style="--i:'+(i<4?i:i+1)+'"><b class="u">'+p[0]+'</b><b class="l">'+p[1]+'</b></span>';
-    if(i===4)cell='<span class="lgc lgn" aria-hidden="true" style="--i:4"><b class="l">a</b></span>'+cell;return cell}).join('');
+    if(i===4)cell='<span class="lgc lgn" aria-hidden="true" style="--i:4"><b class="l">A</b></span>'+cell;return cell}).join('');
   el.innerHTML=h;
   function measure(){$$('.lgc',el).forEach(function(c){var u=c.querySelector('.u'),l=c.querySelector('.l');
     c.style.setProperty('--wu',(u?u.offsetWidth:0)+'px');c.style.setProperty('--wl',(l?l.offsetWidth:0)+'px')})}
