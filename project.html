@@ -1228,6 +1228,10 @@ img.mk-d{-webkit-mask:none !important;mask:none !important;background:none !impo
   #ldr .l-top{font-size:16px}
   #ldr .l-code{left:20px;top:calc(clamp(16px,2.2vw,40px) + 34px)}
 }
+/* loader stage jolts (25/50/75/92 %) */
+#ldr.jolt .l-code{transform:translateX(var(--jx,12px));text-shadow:-2px 0 rgba(255,46,110,.7),2px 0 rgba(46,230,255,.7)}
+#ldr.jolt .l-pct .l-num{transform:skewX(-8deg) translateX(calc(var(--jx,12px)*-1.5))}
+#ldr.jolt .l-top{transform:translateX(calc(var(--jx,12px)*.5))}
 
 /* =================== fixes layer =================== */
 :root{--line:#444}
@@ -1823,6 +1827,25 @@ html .m-hl.on .hlt{color:#000}
 @media (prefers-reduced-motion:reduce){html .m-hl,html .m-hl .hlt{transition:none}}
 /* footer: the big MARIART sits lower, clear of the [ RU / EN ] switch, so reaching for the language never sets the letters off */
 html footer .f-big{margin-top:110px !important}
+/* desktop "discuss" block: equal air above the title (cap top ≈96) and below the button (914 → 1010); the block is
+   never taller than the screen — fixes.js narrows the .dc container (everything inside is in cqw, so it scales as one)
+   while the white background and the blobs keep the full width */
+.discuss .dc{overflow:visible !important;container-type:inline-size;width:var(--dcw,1920px);margin:0 auto;height:calc(var(--dcw,1920px)*1010/1920)}
+.discuss .dc .dpl2{top:calc(946.5/1920*100cqw) !important}
+.discuss .dc > .dc-blobs,.discuss .dc > .dc-veil{left:50% !important;right:auto !important;width:1920px !important;margin-left:-960px !important}
+/* footer e-mail hover: the fill drains out of the letters one after another, leaving only their outline;
+   the @ keeps its fill and spins (replaces the letter roll on the e-mail) */
+:is(.f-mail,.m-mail).roll .rl{text-shadow:none;-webkit-text-stroke:1.2px transparent;
+  transition:color .45s cubic-bezier(.4,0,.2,1) calc(var(--i)*30ms),-webkit-text-stroke-color .3s ease calc(var(--i)*30ms)}
+:is(.f-mail,.m-mail).roll .rl.at{transform-origin:50% 54%}
+@media (hover:hover){
+  :is(.f-mail,.m-mail).roll:hover .rl{transform:none;color:transparent;-webkit-text-stroke-color:currentColor;-webkit-text-stroke-color:#fff}
+  :is(.f-mail,.m-mail).roll:hover .rl.at{color:#fff;-webkit-text-stroke-color:transparent;animation:atSpin 1.4s cubic-bezier(.6,0,.4,1) infinite}
+}
+:is(.f-mail,.m-mail).roll.tap .rl{transform:none !important;color:transparent;-webkit-text-stroke-color:#fff}
+:is(.f-mail,.m-mail).roll.tap .rl.at{color:#fff;-webkit-text-stroke-color:transparent;animation:atSpin 1.4s cubic-bezier(.6,0,.4,1) infinite}
+@keyframes atSpin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){:is(.f-mail,.m-mail).roll .rl.at{animation:none !important}}
 </style>
 </head>
 <body data-page="project" data-title-ru="Crumb and Co — MARIART" data-title-en="Crumb and Co — MARIART"><script>(function(){var w=document.documentElement.clientWidth;document.body.style.zoom=w>=1024?w/1920:(w>600?w/600:(w<360?w/360:""));document.documentElement.classList.toggle("tab",w>600&&w<1024)})();</script>
@@ -2718,8 +2741,8 @@ var src=$$('style').map(function(s){return s.textContent}).join('\n').replace(/\
   .filter(function(l){return l.length>14&&l.length<260&&l[0]!=='@'&&l.indexOf('base64')<0&&l.indexOf('url(')<0});
 /* enough lines to fill the whole screen; long lines simply run off the right edge */
 var NL=Math.ceil(innerHeight/14)+2,lines=[],st=Math.floor(rnd(0,Math.max(1,src.length-NL*3)));for(var i=0;i<NL;i++)lines.push((src[st+i*3]||src[i%src.length]||'')+' }');
-var codeTxt=lines.join('\n'), T0=performance.now(), MIN=1300, MAX=7000, shown=-1, nextGl=T0+rnd(350,700), glEnd=0;
-function setNum(v){var s=('00'+v).slice(-3);
+var codeTxt=lines.join('\n'), T0=performance.now(), MIN=3800, MAX=9000, shown=-1, nextGl=T0+rnd(250,500), glEnd=0, stages=[25,50,75,92], jolt=0;
+function setNum(v){v=Math.max(1,v);var s=('00'+v).slice(-3);
   digits.forEach(function(d,k){var n=+s[k];d.style.transform='translateY('+(-n*10)+'%)';d.parentNode.classList.toggle('dim',k<3-String(v).length)});
   gl.setAttribute('data-t',s.replace(/^0+(?=\d)/,'')+'%');}
 var p=0;
@@ -2727,19 +2750,22 @@ function frame(now){
   cnt(); var el=now-T0, real=ready/total;
   if(loaded&&fontsOk)real=1; if(el>MAX)real=1;
   var cap=Math.min(1,el/MIN);                       // smooth: never faster than MIN
-  p+=(Math.min(real,cap)-p)*0.12; if(Math.min(real,cap)>=1&&p>.995)p=1;
+  p+=(Math.min(real,cap)-p)*0.18; if(Math.min(real,cap)>=1&&p>.995)p=1;
   var v=Math.round(p*100); if(v!==shown){shown=v;setNum(v);bar.style.width=v+'%'}
   /* brief, occasional glitch bursts (after auge-xp.com) */
-  if(now>nextGl&&p<1){pct.classList.add('gl');digits.forEach(function(d){if(Math.random()<.5)d.style.transform='translateY('+(-Math.floor(Math.random()*10)*10)+'%)'});shown=-1;gl.style.setProperty('--gy',rnd(10,70).toFixed(0)+'%');gl.style.setProperty('--gx',(rnd(-6,6)).toFixed(1)+'%');glEnd=now+rnd(70,140);nextGl=now+rnd(450,1000)}
+  if(now>nextGl&&p<1){pct.classList.add('gl');digits.forEach(function(d){if(Math.random()<.5)d.style.transform='translateY('+(-Math.floor(Math.random()*10)*10)+'%)'});shown=-1;gl.style.setProperty('--gy',rnd(10,70).toFixed(0)+'%');gl.style.setProperty('--gx',(rnd(-6,6)).toFixed(1)+'%');glEnd=now+rnd(80,170);nextGl=now+rnd(300,750)}
+  /* stage changes: at 25 / 50 / 75 / 92 % the whole screen jolts — code shifts with a cyan/magenta split, the number skews */
+  if(stages.length&&v>=stages[0]){stages.shift();L.classList.add('jolt');L.style.setProperty('--jx',(rnd(-1,1)>0?1:-1)*rnd(8,18).toFixed(0)+'px');jolt=now+rnd(160,240)}
+  if(jolt&&now>jolt){L.classList.remove('jolt');jolt=0}
   if(glEnd&&now>glEnd){pct.classList.remove('gl');glEnd=0;shown=-1}
-  var ch=Math.floor(Math.min(1,el/(MIN*1.4))*codeTxt.length), ps=codeTxt.slice(0,ch).split('\n');
+  var ch=Math.floor(Math.min(1,el/(MIN*1.05))*codeTxt.length), ps=codeTxt.slice(0,ch).split('\n');
   /* the caret always sits right after the last typed character (a just-typed line break does not move it to an empty line) */
   if(ps.length>1&&ps[ps.length-1]==='')ps.pop();
   code.innerHTML='<span class="l-txt">'+ps.map(function(x,k){x=x.replace(/&/g,'&amp;').replace(/</g,'&lt;');return k===ps.length-1?'<b>'+x+'<i></i></b>':x}).join('\n')+'</span>';code.scrollTop=code.scrollHeight;
   if(p<1)requestAnimationFrame(frame);else finish();
 }
 function finish(){
-  pct.classList.remove('gl');
+  pct.classList.remove('gl');L.classList.remove('jolt');
   L.classList.add('done');                                   // digits leave, then the asterisk takes over (no big MARIART)
   setTimeout(asterisk,550);
 }
@@ -3197,7 +3223,7 @@ if(!matchMedia('(hover:hover)').matches&&'IntersectionObserver' in window){var s
 
 /* ---------- footer e-mail: same letter roll as the header logo ---------- */
 $$('.f-mail,.m-mail').forEach(function(a){if(a.querySelector('.rl'))return;var t=a.textContent.trim();a.setAttribute('aria-label',t);a.textContent='';
-  t.split('').forEach(function(ch,i){var s=document.createElement('span');s.className='rl';s.setAttribute('aria-hidden','true');s.style.setProperty('--i',i);s.textContent=ch;a.appendChild(s)});a.classList.add('roll')});
+  t.split('').forEach(function(ch,i){var s=document.createElement('span');s.className=ch==='@'?'rl at':'rl';s.setAttribute('aria-hidden','true');s.style.setProperty('--i',i);s.textContent=ch;a.appendChild(s)});a.classList.add('roll')});
 
 /* ---------- phone socials: the three circles in one row, big enough to tap, linked by dashed diagonals ----------
    360-wide frame (scaled to the screen): circles r=48 centred at 60/180/300 touch both rules; in each gap the two
@@ -3294,6 +3320,13 @@ $$('.f-mail,.m-mail').forEach(function(a){if(a.querySelector('.rl'))return;var t
 
 /* every button: same magnetic pull (buttons created above by script included) */
 magnetAll();setTimeout(magnetAll,1500);
+})();
+
+/* ---------- desktop "discuss" block fits the screen height ---------- */
+(function(){var dc=document.querySelector('.discuss .dc');if(!dc)return;
+  function fit(){var z=parseFloat(document.body.style.zoom)||1,H=innerHeight/z,W=Math.min(1920,H*1920/1010);
+    dc.style.setProperty('--dcw',W.toFixed(1)+'px')}
+  fit();addEventListener('resize',fit);addEventListener('load',fit);
 })();
 </script>
 </body>
