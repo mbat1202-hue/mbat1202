@@ -1699,19 +1699,38 @@ html footer .f-big{margin-top:110px !important}
 .discuss .dc{overflow:visible !important;container-type:inline-size;width:var(--dcw,1920px);margin:0 auto;height:calc(var(--dcw,1920px)*1010/1920)}
 .discuss .dc .dpl2{top:calc(946.5/1920*100cqw) !important}
 .discuss .dc > .dc-blobs,.discuss .dc > .dc-veil{left:50% !important;right:auto !important;width:1920px !important;margin-left:-960px !important}
-/* footer e-mail hover: the fill drains out of the letters one after another, leaving only their outline;
-   the @ keeps its fill and spins (replaces the letter roll on the e-mail) */
-:is(.f-mail,.m-mail).roll .rl{text-shadow:none;-webkit-text-stroke:1.2px transparent;
-  transition:color .45s cubic-bezier(.4,0,.2,1) calc(var(--i)*30ms),-webkit-text-stroke-color .3s ease calc(var(--i)*30ms)}
+/* footer e-mail hover: letters keep their roll; the @ stays in place and spins */
 :is(.f-mail,.m-mail).roll .rl.at{transform-origin:50% 54%}
-@media (hover:hover){
-  :is(.f-mail,.m-mail).roll:hover .rl{transform:none;color:transparent;-webkit-text-stroke-color:currentColor;-webkit-text-stroke-color:#fff}
-  :is(.f-mail,.m-mail).roll:hover .rl.at{color:#fff;-webkit-text-stroke-color:transparent;animation:atSpin 1.4s cubic-bezier(.6,0,.4,1) infinite}
-}
-:is(.f-mail,.m-mail).roll.tap .rl{transform:none !important;color:transparent;-webkit-text-stroke-color:#fff}
-:is(.f-mail,.m-mail).roll.tap .rl.at{color:#fff;-webkit-text-stroke-color:transparent;animation:atSpin 1.4s cubic-bezier(.6,0,.4,1) infinite}
-@keyframes atSpin{to{transform:rotate(360deg)}}
+@media (hover:hover){:is(.f-mail,.m-mail).roll:hover .rl.at{transform:none;text-shadow:none;animation:atSpin 1.2s cubic-bezier(.6,0,.4,1) infinite}}
+:is(.f-mail,.m-mail).roll.tap .rl.at{transform:none !important;text-shadow:none;animation:atSpin 1.2s cubic-bezier(.6,0,.4,1) infinite}
+@keyframes atSpin{to{rotate:360deg}}
 @media (prefers-reduced-motion:reduce){:is(.f-mail,.m-mail).roll .rl.at{animation:none !important}}
+
+/* ---------- desktop logo: MARIART ⇄ Maria Art (≈400 ms, reversible) ---------- */
+.d-view header .logo.lgm{white-space:nowrap;padding-right:.12em;margin-right:-.12em}
+.d-view header .logo.lgm .lgc{position:relative;display:inline-block;vertical-align:top;width:var(--wu);text-shadow:none !important;
+  transition:translate 1s cubic-bezier(.76,0,.24,1) calc(.15s + var(--i)*45ms),width .4s cubic-bezier(.65,0,.35,1)}
+.d-view header .logo.lgm .lgc b{font-weight:inherit;display:inline-block;white-space:pre;transition:opacity .32s cubic-bezier(.4,0,.2,1),transform .4s cubic-bezier(.65,0,.35,1)}
+.d-view header .logo.lgm .lgc .l{position:absolute;left:0;top:0;opacity:0;transform:translateY(.22em)}
+.d-view header .logo.lgm .lgn{width:0;overflow:hidden}
+.d-view header .logo.lgm .lgn .l{position:relative}
+.d-view header .logo.lgm:hover span,.d-view header .logo.lgm.tap span{transform:none !important}
+@media (hover:hover){
+  .d-view header .logo.lgm:hover .lgc{width:var(--wl)}
+  .d-view header .logo.lgm:hover .lgn{width:calc(var(--wl) + .3em)}
+  .d-view header .logo.lgm:hover .lgc .u{opacity:0;transform:translateY(-.22em)}
+  .d-view header .logo.lgm:hover .lgc .l{opacity:1;transform:none}
+  /* the capital of "Art" and the M stay capitals */
+  .d-view header .logo.lgm:hover .lgc:first-child .u,.d-view header .logo.lgm:hover .lgn + .lgc .u{opacity:1;transform:none}
+  .d-view header .logo.lgm:hover .lgc:first-child .l,.d-view header .logo.lgm:hover .lgn + .lgc .l{opacity:0;transform:translateY(.22em)}
+  .d-view header .logo.lgm:hover .lgc:first-child,.d-view header .logo.lgm:hover .lgn + .lgc{width:var(--wu)}
+}
+@media (prefers-reduced-motion:reduce){.d-view header .logo.lgm .lgc,.d-view header .logo.lgm .lgc b{transition:none}}
+/* socials: the lines are drawn by scroll (fixes.js socDraw) — the old clip-path wipe and the duplicate pseudo-element
+   rules are retired so every rule exists exactly once, inside the SVG */
+.dr :is(svg.sg-geo,svg.soc-deco,svg.soc-geo-d){clip-path:none !important}
+#socials::before,#socials::after,#socials-t::before,#socials-t::after{display:none !important}
+.gd-svg .gd-m{stroke:#fff !important}
 </style>
 </head>
 <body data-page="contacts" data-title-ru="Контакты — MARIART" data-title-en="Contacts — MARIART"><script>(function(){var w=document.documentElement.clientWidth;document.body.style.zoom=w>=1024?w/1920:(w>600?w/600:(w<360?w/360:""));document.documentElement.classList.toggle("tab",w>600&&w<1024)})();</script>
@@ -2716,7 +2735,21 @@ syncLang();
 /* ---------- logo: MARIART floats up letter by letter ---------- */
 var logo=document.querySelector('.d-view header .logo');
 function splitLogo(el){el.setAttribute('aria-label','MARIART');el.innerHTML='MARIART'.split('').map(function(c,i){return '<span aria-hidden="true" style="--i:'+i+'">'+c+'</span>'}).join('')}
-if(logo){logo.href='index.html';splitLogo(logo)}
+if(logo){logo.href='index.html';splitMorph(logo)}
+/* desktop logo hover: MARIART unfolds into "Maria Art" — letters 2–5 ease into lower case, a lower-case "a" grows in
+   before the last A (its width opens from 0), so that A becomes the capital of "Art" and "RT"→"rt" slide right.
+   Every letter is a fixed-width cell whose width animates between the measured upper/lower glyph widths: no jumps.
+   Touch screens never hover, so the logo just stays MARIART there. */
+function splitMorph(el){
+  var U='MARIART',Lo='MariArt',cells=U.split('').map(function(c,i){return [c,Lo[i]]});
+  el.setAttribute('aria-label','MARIART');el.classList.add('lgm');
+  var h=cells.map(function(p,i){var cell='<span class="lgc" aria-hidden="true" style="--i:'+(i<4?i:i+1)+'"><b class="u">'+p[0]+'</b><b class="l">'+p[1]+'</b></span>';
+    if(i===4)cell='<span class="lgc lgn" aria-hidden="true" style="--i:4"><b class="l">a</b></span>'+cell;return cell}).join('');
+  el.innerHTML=h;
+  function measure(){$$('.lgc',el).forEach(function(c){var u=c.querySelector('.u'),l=c.querySelector('.l');
+    c.style.setProperty('--wu',(u?u.offsetWidth:0)+'px');c.style.setProperty('--wl',(l?l.offsetWidth:0)+'px')})}
+  measure();if(document.fonts&&document.fonts.ready)document.fonts.ready.then(measure);addEventListener('load',measure);
+}
 /* the logo already leads home, so the desktop menu starts with [ about ] */
 $$('.d-view header .menu a[href="index.html"]').forEach(function(a){a.remove()});
 var mh=document.querySelector('.m-head');
@@ -2968,23 +3001,65 @@ centerHero();addEventListener('load',centerHero);[1500,3500,7000,9500].forEach(f
 if(document.fonts&&document.fonts.ready)document.fonts.ready.then(centerHero);
 new MutationObserver(function(){setTimeout(centerHero,80)}).observe(R,{attributes:true,attributeFilter:['data-lang']});
 
-/* ---------- socials: the crossing between two circles is drawn as two point-symmetric cubic S-curves.
-   Each curve leaves circle A tangentially (control handle along the circle's tangent at the start point), sweeps
-   through the midpoint and enters circle B tangentially at the mirrored point — no straight X, no kinks.
-   th = start angle measured clockwise from the top of the circle (a fraction of the inner-tangent angle), so the
-   curve starts flatter than the old straight tangent and steepens through the centre; handle length k·|PQ|. ---------- */
-function socS(A,B,f){var r=A.r,D=Math.hypot(B.cx-A.cx,B.cy-A.cy),a=Math.asin(Math.min(1,2*r/D)),th=a*.35,k=.42,s=Math.sin(th),c=Math.cos(th),out='';
-  [1,-1].forEach(function(v){var P=[A.cx+r*s,A.cy-v*r*c],Q=[B.cx-r*s,B.cy+v*r*c],L=k*Math.hypot(Q[0]-P[0],Q[1]-P[1]),t=[c,v*s];
-    out+='<path class="sx" d="M'+f(P[0])+' '+f(P[1])+'C'+f(P[0]+L*t[0])+' '+f(P[1]+L*t[1])+' '+f(Q[0]-L*t[0])+' '+f(Q[1]-L*t[1])+' '+f(Q[0])+' '+f(Q[1])+'"/>'});
-  return out}
-/* the two S-curves cross at their midpoints: shift each dash pattern so the crossing falls in the middle of a gap
-   (clean, symmetric centre instead of two dashes overlapping into a blob) */
-function socSx(root){$$('path.sx',root).forEach(function(p){var g=p.parentNode,da=(g.getAttribute('stroke-dasharray')||'').split(/[ ,]+/).map(parseFloat);
+/* ---------- socials geometry (every layout) ----------
+   One SVG per layout holds every line of the block: the solid rules, the dashed connectors between neighbouring
+   circles and the dashed outer arcs; all of them use the same colour (var(--line), like the circle outlines) and width.
+   Connector (socPath): from the middle it runs as a straight diagonal (steeper than the old tangent X), then a cubic
+   Bézier bends it — G1-continuous, the handle at the joint lies on the straight line — so that it meets the circle at
+   a shallow angle (β, still heading inwards, so the curve never leaves the band between the rules) and carries on underneath it. The part inside a circle is cut away by a mask (holes = the circle
+   interiors), so the dashes really disappear under the outline instead of stopping at it. The two connectors of a pair
+   are point-symmetric, so they cross exactly at the midpoint, where the dash pattern is centred on a gap.
+   Scroll drawing (socDraw): each line is revealed along its own length through a solid copy in a mask
+   (stroke-dashoffset), progress follows the scroll: rules first, then the connectors, then the arcs; scrolling back
+   erases them. prefers-reduced-motion: everything is simply shown. */
+var socN=0;
+function socPath(A,B,v,f){var r=A.r,D=Math.hypot(B.cx-A.cx,B.cy-A.cy),a=Math.asin(Math.min(1,2*r/D)),
+    th=Math.min(a*1.6,a+(Math.PI/2-a)*.25),be=18*Math.PI/180,ph=Math.min(a*1.3+.05,1.3),
+    t=[Math.cos(th),v*Math.sin(th)],n=[Math.sin(th),-v*Math.cos(th)],
+    dir=[t[0]*Math.cos(be)+n[0]*Math.sin(be),t[1]*Math.cos(be)+n[1]*Math.sin(be)],
+    P=[A.cx+r*Math.sin(th),A.cy-v*r*Math.cos(th)],M=[(A.cx+B.cx)/2,(A.cy+B.cy)/2],d=[Math.cos(ph),v*Math.sin(ph)],
+    Lx=Math.hypot(M[0]-P[0],M[1]-P[1]),S1=[M[0]-d[0]*Lx*.32,M[1]-d[1]*Lx*.32],
+    h=.45*Math.hypot(S1[0]-P[0],S1[1]-P[1]),Q=[2*M[0]-P[0],2*M[1]-P[1]],S2=[2*M[0]-S1[0],2*M[1]-S1[1]],
+    E=[P[0]-dir[0]*r*.5,P[1]-dir[1]*r*.5],E2=[Q[0]+dir[0]*r*.5,Q[1]+dir[1]*r*.5],
+    p=function(x){return f(x[0])+' '+f(x[1])};
+  return 'M'+p(E)+'L'+p(P)+'C'+p([P[0]+dir[0]*h,P[1]+dir[1]*h])+' '+p([S1[0]-d[0]*h,S1[1]-d[1]*h])+' '+p(S1)+
+    'L'+p(S2)+'C'+p([S2[0]+d[0]*h,S2[1]+d[1]*h])+' '+p([Q[0]-dir[0]*h,Q[1]-dir[1]*h])+' '+p(Q)+'L'+p(E2)}
+/* o: {cls,W,H,sw,dash,rules:[y],x0,x1,circles:[{cx,cy,r}],pairs:[[A,B]],arcs:[d],ow (outline width)} */
+function socGeo(o){var f=function(n){return (+n).toFixed(2)},id='sg'+(++socN),big='x="-4000" y="-4000" width="'+(o.W+8000)+'" height="'+(o.H+8000)+'"',
+    defs='<mask id="'+id+'h" maskUnits="userSpaceOnUse" '+big+'><rect '+big+' fill="#fff"/>'+o.circles.map(function(c){return '<circle cx="'+f(c.cx)+'" cy="'+f(c.cy)+'" r="'+f(c.r-(o.ow||1)/2)+'" fill="#000"/>'}).join('')+'</mask>',
+    body='',k=0,
+    dashed=function(d,cls,st){var m=id+'d'+(k++);defs+='<mask id="'+m+'" maskUnits="userSpaceOnUse" '+big+'><path class="gd-m" data-st="'+st+'" d="'+d+'" fill="none" stroke="#fff" stroke-width="'+f(o.sw*4)+'"/></mask>';
+      return '<g mask="url(#'+m+')"><path class="'+cls+'" d="'+d+'"/></g>'};
+  o.rules.forEach(function(y,i){body+='<path class="gd gd-r" data-st="r'+i+'" d="M'+f(o.x0)+' '+f(y)+'H'+f(o.x1)+'"/>'});
+  var dsh='';o.pairs.forEach(function(pr){[1,-1].forEach(function(v){dsh+=dashed(socPath(pr[0],pr[1],v,f),'sx','x')})});
+  o.arcs.forEach(function(d){dsh+=dashed(d,'ga','a')});
+  return '<svg class="'+o.cls+' gd-svg" width="'+o.W+'" height="'+o.H+'" viewBox="0 0 '+o.W+' '+o.H+'" aria-hidden="true" fill="none" stroke-width="'+o.sw+'" style="stroke:var(--line)" shape-rendering="geometricPrecision"><defs>'+defs+'</defs>'+
+    body+'<g mask="url(#'+id+'h)" stroke-dasharray="'+o.dash.join(' ')+'">'+dsh+'</g></svg>'}
+/* the two connectors cross at their midpoints: shift each dash pattern so the crossing falls in the middle of a gap */
+function socSx(root){$$('path.sx',root).forEach(function(p){var g=p.closest('[stroke-dasharray]'),da=g?(g.getAttribute('stroke-dasharray')||'').split(/[ ,]+/).map(parseFloat):[];
   if(da.length<2||!p.getTotalLength)return;var P=da[0]+da[1],L=p.getTotalLength();if(!L)return;
   p.setAttribute('stroke-dashoffset',(((da[0]+da[1]/2-L/2)%P+P)%P).toFixed(2))})}
+/* scroll-linked drawing of one block (box = the element whose position drives the progress) */
+var socBoxes=[];
+function socDraw(box){if(socBoxes.indexOf(box)<0)socBoxes.push(box);
+  var items=[];$$('.gd-svg .gd, .gd-svg .gd-m',box).forEach(function(p){var L=p.getTotalLength?p.getTotalLength():0;p.style.strokeDasharray=L+' '+(L+2);items.push({p:p,L:L,st:p.getAttribute('data-st')})});
+  box._gd=items;socTick()}
+var socRaf=0;
+function socUpd(){socRaf=0;socBoxes.forEach(function(box){if(!box._gd||!box.offsetParent&&box.getClientRects().length===0)return;
+  var r=box.getBoundingClientRect(),vh=innerHeight,pr=reduce?1:Math.max(0,Math.min(1,(vh*.95-r.top)/(r.height*.55+vh*.3)));
+  var nr=box._gd.filter(function(i){return i.st&&i.st[0]==='r'}).length||1;
+  box._gd.forEach(function(i){var a,b;if(i.st[0]==='r'){var k=+i.st.slice(1);a=k*.08;b=.42+k*.08}else if(i.st==='x'){a=.3;b=.78}else{a=.52;b=1}
+    var q=Math.max(0,Math.min(1,(pr-a)/(b-a)));q=q<.5?4*q*q*q:1-Math.pow(-2*q+2,3)/2;
+    i.p.style.strokeDashoffset=(i.L*(1-q)).toFixed(2)})})}
+function socTick(){if(!socRaf)socRaf=requestAnimationFrame(socUpd)}
+addEventListener('scroll',socTick,{passive:true});addEventListener('resize',socTick);
 
-/* ---------- tablet socials: geometric decoration (arcs tangent to the rules, X = inner tangents of the two circles) ---------- */
-(function(){var s=document.querySelector('#socials-t .soc');if(!s||s.querySelector('.soc-deco'))return;var TB={be:1012.5,li:1652.5};s.insertAdjacentHTML('afterbegin','<svg class="soc-deco" viewBox="0 0 1920 718" aria-hidden="true" fill="none" stroke="#2e2e2e" stroke-width="2"><line x1="0" y1="100" x2="1920" y2="100"/><line x1="0" y1="405" x2="1920" y2="405"/><line x1="0" y1="710" x2="1920" y2="710"/><g stroke-dasharray="23 23"><path d="M707.5 100A152.5 152.5 0 0 1 707.5 405"/><path d="M707.5 405A152.5 152.5 0 0 1 707.5 710"/><path d="M1957.5 405A152.5 152.5 0 0 0 1957.5 710"/>'+socS({cx:TB.be,cy:557.5,r:152.5},{cx:TB.li,cy:557.5,r:152.5},function(n){return n.toFixed(2)})+'</g></svg>');socSx(s);})();
+/* ---------- tablet socials: one 1920×718 frame (scaled), circles r=152.5: Telegram above Behance, LinkedIn to the right ---------- */
+(function(){var s=document.querySelector('#socials-t .soc');if(!s||s.querySelector('.soc-deco'))return;
+  var r=152.5,tg={cx:1012.5,cy:252.5,r:r},be={cx:1012.5,cy:557.5,r:r},li={cx:1652.5,cy:557.5,r:r};
+  s.insertAdjacentHTML('afterbegin',socGeo({cls:'soc-deco',W:1920,H:718,sw:2,dash:[23,23],rules:[100,405,710],x0:0,x1:1920,circles:[tg,be,li],pairs:[[be,li]],ow:2,
+    arcs:['M707.5 100A152.5 152.5 0 0 1 707.5 405','M707.5 405A152.5 152.5 0 0 1 707.5 710','M1957.5 405A152.5 152.5 0 0 0 1957.5 710']}));
+  var sv=s.querySelector('svg.soc-deco');sv.setAttribute('preserveAspectRatio','none');socSx(s);socDraw(s);})();
 
 /* ---------- socials decoration rebuilt geometrically: dashed arcs tangent to the rules, X = inner common tangents of the two circles ---------- */
 /* desktop socials: the line drawing is built as inline vector SVG from the real circle positions
@@ -2996,11 +3071,10 @@ function socSx(root){$$('path.sx',root).forEach(function(p){var g=p.parentNode,d
     var W=soc.offsetWidth,H=soc.offsetHeight,f=function(n){return n.toFixed(2)};
     var arc=function(c,dx,side){var x=c.cx+dx;return '<path d="M'+f(x)+' '+f(c.cy-c.r)+'A'+f(c.r)+' '+f(c.r)+' 0 0 '+side+' '+f(x)+' '+f(c.cy+c.r)+'"/>'};
     /* inner common tangents of Behance and LinkedIn: they cross between the circles, segments run tangent point to tangent point */
-    var X=socS(be,li,f);
-    var svg='<svg class="soc-geo-d" width="'+W+'" height="'+H+'" viewBox="0 0 '+W+' '+H+'" aria-hidden="true" fill="none" stroke="#333" stroke-width="1.4" shape-rendering="geometricPrecision">'+
-      '<line x1="-400" y1="'+f(tg.cy-tg.r)+'" x2="'+(W+400)+'" y2="'+f(tg.cy-tg.r)+'"/><line x1="-400" y1="'+f(tg.cy+tg.r)+'" x2="'+(W+400)+'" y2="'+f(tg.cy+tg.r)+'"/><line x1="-400" y1="'+f(be.cy+be.r)+'" x2="'+(W+400)+'" y2="'+f(be.cy+be.r)+'"/>'+
-      '<g stroke-dasharray="23 23">'+arc(tg,-2*tg.r,1)+arc(be,-2*be.r,1)+arc(li,2*li.r,0)+arc(li,4*li.r,0)+X+'</g></svg>';
-    var old=soc.querySelector('svg.soc-geo-d');if(old)old.outerHTML=svg;else soc.insertAdjacentHTML('afterbegin',svg);socSx(soc);
+    var ad=function(c,dx,side){var x=c.cx+dx;return 'M'+f(x)+' '+f(c.cy-c.r)+'A'+f(c.r)+' '+f(c.r)+' 0 0 '+side+' '+f(x)+' '+f(c.cy+c.r)};
+    var svg=socGeo({cls:'soc-geo-d',W:W,H:H,sw:1.4,dash:[23,23],rules:[tg.cy-tg.r,tg.cy+tg.r,be.cy+be.r],x0:-400,x1:W+400,circles:[tg,be,li],pairs:[[be,li]],ow:1.4,
+      arcs:[ad(tg,-2*tg.r,1),ad(be,-2*be.r,1),ad(li,2*li.r,0),ad(li,4*li.r,0)]});
+    var old=soc.querySelector('svg.soc-geo-d');if(old)old.outerHTML=svg;else soc.insertAdjacentHTML('afterbegin',svg);socSx(soc);socDraw(soc);
     if(img)img.style.display='none';
   }
   draw();addEventListener('load',draw);addEventListener('resize',draw);
@@ -3025,8 +3099,9 @@ $$('.f-mail,.m-mail').forEach(function(a){if(a.querySelector('.rl'))return;var t
    360-wide frame (scaled to the screen): circles r=48 centred at 60/180/300 touch both rules; in each gap the two
    inner common tangents of the neighbouring circles cross — that is the dashed X */
 (function(){var g=document.querySelector('.m-circles .sg-in');if(!g||g.querySelector('.sg-geo'))return;
-  var X=function(c){return socS({cx:c-60,cy:48,r:48},{cx:c+60,cy:48,r:48},function(n){return n.toFixed(2)})};
-  g.insertAdjacentHTML('afterbegin','<svg class="sg-geo" width="360" height="96" viewBox="0 0 360 96" aria-hidden="true" fill="none" stroke="#3c3c3c" stroke-width=".7"><line x1="-400" y1="0.35" x2="760" y2="0.35"/><line x1="-400" y1="95.65" x2="760" y2="95.65"/><g stroke-dasharray="4.5 3.2">'+X(120)+X(240)+'<path d="M12 0A48 48 0 0 0 12 96"/><path d="M348 0A48 48 0 0 1 348 96"/></g></svg>');socSx(g);
+  var C=[60,180,300].map(function(x){return {cx:x,cy:48,r:48}});
+  g.insertAdjacentHTML('afterbegin',socGeo({cls:'sg-geo',W:360,H:96,sw:.7,dash:[4.5,3.2],rules:[.35,95.65],x0:-400,x1:760,circles:C,pairs:[[C[0],C[1]],[C[1],C[2]]],ow:1,
+    arcs:['M12 0A48 48 0 0 0 12 96','M348 0A48 48 0 0 1 348 96']}));socSx(g);socDraw(g.closest('.m-circles')||g);
   var cs=$$('.m-c',g),pos={tg:132},ord=[];cs.forEach(function(c){ord.push(c)});
   /* Behance left, Telegram in the middle, LinkedIn right */
   var tg=cs.filter(function(c){return c.classList.contains('tg')})[0],rest=cs.filter(function(c){return c!==tg});
