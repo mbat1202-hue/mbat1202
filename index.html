@@ -1667,6 +1667,9 @@ html.mm-open .m-burger.tap,html.mm-open .m-burger{opacity:0 !important}
 .m-c.tap img.m-ring.mk-d,.soc-c.tap img.soc-ring.mk-d{filter:invert(1) !important}
 /* cookie notice on phones: the same 10px gap at the bottom as at the sides, above the iPhone home bar / Safari toolbar */
 @media (max-width:600px){.ck{bottom:calc(10px + env(safe-area-inset-bottom,0px)) !important}}
+/* phone footer rhythm: the e-mail sits closer to the links, and further from the big MARIART */
+html:not(.tab) .m-view .m-mail{margin-top:14px !important}
+html:not(.tab) .m-view .m-big{margin-top:56px !important}
 </style>
 </head>
 <body data-page="home" data-title-ru="MARIART — UI/UX-дизайнер" data-title-en="MARIART — UI/UX Designer"><script>(function(){var w=document.documentElement.clientWidth;document.body.style.zoom=w>=1024?w/1920:(w>600?w/600:(w<360?w/360:""));document.documentElement.classList.toggle("tab",w>600&&w<1024)})();</script>
