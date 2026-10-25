@@ -1676,16 +1676,10 @@ html footer .f-big{margin-top:110px !important}
   background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3.6 8.3l2.9 2.9 5.9-6.2' fill='none' stroke='%23fff' stroke-width='1.9' stroke-linecap='square'/%3E%3C/svg%3E") center/100% 100% no-repeat;clip-path:inset(0 100% 0 0);transition:clip-path .15s ease}
 .dc-cb:checked::after,.m-check input[type=checkbox]:checked::after{content:"" !important;display:block !important;position:absolute !important;inset:0 !important;width:auto !important;height:auto !important;border:0 !important;transform:none !important;clip-path:inset(0 0 0 0);transition:clip-path .3s cubic-bezier(.4,0,.2,1) .6s}
 @media (prefers-reduced-motion:reduce){.dc-cb,.m-check input[type=checkbox]{transition:none !important}}
-/* form fields: no underlines — each field is framed by its brackets only: "[" on the field's left edge, "]" on its
-   right edge (so the pair spans exactly the old underline), the label left-aligned right after "["; every field has
-   the same left/right edges, so all brackets stand in two clean vertical lines */
+/* form fields: no underlines (the brackets and their interaction stay as they were) */
 .dl{display:none !important}
 .dc-in,.m-form input:not([type=checkbox]){border-bottom-color:transparent !important;box-shadow:none !important;background-image:none !important}
 input.fv-bad:not([type=checkbox]){border-bottom-color:transparent !important}
-.fb-ov{justify-content:flex-start}
-.fb-ov .fb-r{margin-left:auto}
-.fb-ov .fb-t{flex:0 1 auto;min-width:0}
-.dc-in,.m-form input:not([type=checkbox]){padding-right:1em !important}
 /* slider dots: SVG fill flows between the dots (fixes.js); the old goo indicator is gone */
 .sl-goo{position:relative}
 .sl-goo .sl-dot{background:transparent !important;border:1px solid #fff !important}
@@ -3261,7 +3255,11 @@ addEventListener('scroll',socTick,{passive:true});addEventListener('resize',socT
    (the old <img> was a raster recoloured by a filter: jagged dashes, and its arcs could miss the circles by a pixel) */
 (function(){var soc=document.querySelector('#socials .soc');if(!soc)return;var img=soc.querySelector('img.soc-lines');
   function draw(){var z=parseFloat(document.body.style.zoom)||1,sr=soc.getBoundingClientRect();
-    var g=function(sel){var e=soc.querySelector(sel);if(!e)return null;var r=e.getBoundingClientRect();return {cx:(r.left-sr.left+r.width/2)/z,cy:(r.top-sr.top+r.height/2)/z,r:r.width/2/z}};
+    /* layout geometry (offset*), not getBoundingClientRect: the circles are scaled to 0 for their draw-in, which would
+       collapse the measured radius and drop the rules through the circle centres */
+    var g=function(sel){var e=soc.querySelector(sel);if(!e)return null;var x=0,y=0,n=e;while(n&&n!==soc){x+=n.offsetLeft;y+=n.offsetTop;n=n.offsetParent}
+      if(n!==soc){var r=e.getBoundingClientRect();return {cx:(r.left-sr.left+r.width/2)/z,cy:(r.top-sr.top+r.height/2)/z,r:e.offsetWidth/2}}
+      return {cx:x+e.offsetWidth/2,cy:y+e.offsetHeight/2,r:e.offsetWidth/2}};
     var tg=g('.soc-tg'),be=g('.soc-be'),li=g('.soc-in');if(!tg||!be||!li||!tg.r)return;
     var W=soc.offsetWidth,H=soc.offsetHeight,f=function(n){return n.toFixed(2)};
     var arc=function(c,dx,side){var x=c.cx+dx;return '<path d="M'+f(x)+' '+f(c.cy-c.r)+'A'+f(c.r)+' '+f(c.r)+' 0 0 '+side+' '+f(x)+' '+f(c.cy+c.r)+'"/>'};
