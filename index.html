@@ -1845,6 +1845,9 @@ input.fv-bad:not([type=checkbox]){border-bottom-color:transparent !important}
 @media (hover:hover){
   .d-view header .logo.lgm:hover .lgn .lga text{stroke-dashoffset:0;fill-opacity:1;stroke-opacity:0;transition:stroke-dashoffset .5s cubic-bezier(.65,0,.35,1) .05s,fill-opacity .25s ease .4s,stroke-opacity .2s ease .6s}
 }
+/* brackets: at rest they hug the label; once the field is clicked (focus) or filled, "]" slides out to the end of the field */
+.fb-ov .fb-t{transition:opacity .35s ease,filter .35s,max-width .55s cubic-bezier(.16,1,.3,1),padding .55s cubic-bezier(.16,1,.3,1),flex-grow .55s cubic-bezier(.16,1,.3,1) !important;flex:0 1 auto;min-width:0}
+.fb-ov[data-st="focus"]:not(.fv-bad) .fb-t,.fb-ov[data-st="typed"] .fb-t{flex-grow:1;max-width:none !important}
 </style>
 </head>
 <body data-page="home" data-title-ru="MARIART — UI/UX-дизайнер" data-title-en="MARIART — UI/UX Designer"><script>(function(){var w=document.documentElement.clientWidth;document.body.style.zoom=w>=1024?w/1920:(w>600?w/600:(w<360?w/360:""));document.documentElement.classList.toggle("tab",w>600&&w<1024)})();</script>
