@@ -1972,7 +1972,7 @@ input.fv-bad:not([type=checkbox]){border-bottom-color:transparent !important}
 .social .soc .soc-tg > img.soc-ring,.social .soc svg.soc-tgring,.m-circles .m-c.tg > img.m-ring{opacity:0 !important}
 #socials .soc .soc-c,#socials-t .soc .soc-c,.social .soc .soc-c,.m-circles .m-c{border-color:transparent !important}
 .social .soc .soc-c::after,.social .soc .soc-c::before,.social .soc .soc-tgi,.social .soc :is(.soc-be,.soc-in) > img.soc-ring,
-.m-circles .m-c::after,.m-circles .m-c::before,.m-circles .m-tg,.m-circles .m-c:not(.tg) > img.m-ring{opacity:var(--gi,1) !important;scale:calc(.7 + .3*var(--gi,1))}
+.m-circles .m-c::after,.m-circles .m-c::before,.m-circles .m-tg,.m-circles .m-c:not(.tg) > img.m-ring{opacity:var(--gi,1) !important;scale:var(--gi,1)}
 @media (prefers-reduced-motion:reduce){.social .soc,.m-circles{--gi:1 !important}}
 .social .soc,.m-circles{--gi:0}
 </style>
@@ -3453,14 +3453,16 @@ function socSx(root){$$('path.sx',root).forEach(function(p){var g=p.closest('[st
 /* scroll-linked drawing of one block (box = the element whose position drives the progress) */
 var socBoxes=[];
 function socDraw(box){if(socBoxes.indexOf(box)<0)socBoxes.push(box);
-  var items=[];$$('.gd-svg .gd, .gd-svg .gd-m',box).forEach(function(p){var L=p.getTotalLength?p.getTotalLength():0;p.style.strokeDasharray=L+' '+(L+2);items.push({p:p,L:L,st:p.getAttribute('data-st')})});
+  var items=[];$$('.gd-svg .gd, .gd-svg .gd-m',box).forEach(function(p){var L=p.getTotalLength?p.getTotalLength():0;p.style.strokeDasharray=L+' '+(L+2);var sv=p.ownerSVGElement,W=(sv&&sv.viewBox&&sv.viewBox.baseVal&&sv.viewBox.baseVal.width)||1,bx=0;try{bx=p.getBBox().x}catch(e){}
+    items.push({p:p,L:L,st:p.getAttribute('data-st'),fx:Math.max(0,Math.min(1,bx/W))})});
   box._gd=items;socTick()}
 var socRaf=0;
 function socUpd(){socRaf=0;socBoxes.forEach(function(box){if(!box._gd||!box.offsetParent&&box.getClientRects().length===0)return;
   var r=box.getBoundingClientRect(),vh=innerHeight,pr=reduce?1:Math.max(0,Math.min(1,(vh*.95-r.top)/(r.height*.55+vh*.3)));
   var nr=box._gd.filter(function(i){return i.st&&i.st[0]==='r'}).length||1;
-  var gi=Math.max(0,Math.min(1,(pr-.72)/.28));box.style.setProperty('--gi',(gi<.5?4*gi*gi*gi:1-Math.pow(-2*gi+2,3)/2).toFixed(3));
-  box._gd.forEach(function(i){var a,b;if(i.st[0]==='r'){var k=+i.st.slice(1);a=k*.08;b=.42+k*.08}else if(i.st==='c'){a=.12;b=.62}else if(i.st==='x'){a=.3;b=.78}else{a=.52;b=1}
+  var gi=Math.max(0,Math.min(1,(pr-.8)/.2));box.style.setProperty('--gi',(gi<.5?4*gi*gi*gi:1-Math.pow(-2*gi+2,3)/2).toFixed(3));
+  /* everything is drawn from left to right: each line starts when the sweep reaches its left end */
+  box._gd.forEach(function(i){var a,b;if(i.st[0]==='r'){var k=+i.st.slice(1);a=k*.05;b=a+.55}else{var len=i.st==='c'?.2:i.st==='x'?.26:.2;a=.04+i.fx*.5;b=a+len}
     var q=Math.max(0,Math.min(1,(pr-a)/(b-a)));q=q<.5?4*q*q*q:1-Math.pow(-2*q+2,3)/2;
     i.p.style.strokeDashoffset=(i.L*(1-q)).toFixed(2)})})}
 function socTick(){if(!socRaf)socRaf=requestAnimationFrame(socUpd)}
