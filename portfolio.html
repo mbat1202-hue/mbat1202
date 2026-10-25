@@ -1802,6 +1802,9 @@ input.fv-bad:not([type=checkbox]){border-bottom-color:transparent !important}
 .sl-dot.sl-trace .dt-ring{animation:dtStroke .62s ease forwards}
 @keyframes dtStroke{52%{transform:rotate(-270deg);stroke-dashoffset:0}52.1%{transform:rotate(-450deg);stroke-dashoffset:0}100%{transform:rotate(-270deg);stroke-dashoffset:34.6}}
 @media (prefers-reduced-motion:reduce){.sl-dot .dt-ring{display:none}}
+.sl-arrows .sl-btn:focus,.sl-dots .sl-dot:focus{outline:none !important}
+.sl-arrows .sl-btn:focus-visible{outline:none !important;--border:rgba(255,255,255,.6)}
+.sl-dots .sl-dot:focus-visible{outline:none !important;border-color:#fff !important}
 </style>
 </head>
 <body data-page="portfolio" data-title-ru="Портфолио — MARIART" data-title-en="Portfolio — MARIART"><script>(function(){var w=document.documentElement.clientWidth;document.body.style.zoom=w>=1024?w/1920:(w>600?w/600:(w<360?w/360:""));document.documentElement.classList.toggle("tab",w>600&&w<1024)})();</script>
@@ -3052,7 +3055,9 @@ $$('.sl-dots').forEach(function(box){
        flashes white and it is knocked aside — but it does not take the fill; only the destination fills */
     for(var k=Math.min(from,to)+1;k<Math.max(from,to);k++){var g=G[k],dd=Math.abs(M[0]-g.cx),el=dots[k];if(!el)continue;
       var near=cl(1-(dd-r)/(2.2*r));el.style.transform=near>0?'translateX('+(dir*Math.sin(Math.PI*near)*r*.45).toFixed(2)+'px)':'';
-      if(near>.5&&!el.classList.contains('sl-hit')){el.classList.add('sl-hit');(function(e){setTimeout(function(){e.classList.remove('sl-hit')},380)})(el)}}
+      /* struck by the passing fill: its outline is traced round and drained, like the arrow ring */
+      if(near>.5&&!el._struck){el._struck=1;if(!el.querySelector('.dt-ring'))el.insertAdjacentHTML('beforeend','<svg class="dt-ring" viewBox="0 0 12 12" aria-hidden="true"><circle cx="6" cy="6" r="5.5"/></svg>');
+        el.classList.remove('sl-trace');void el.offsetWidth;el.classList.add('sl-trace');(function(e){clearTimeout(e._tr);e._tr=setTimeout(function(){e.classList.remove('sl-trace');e._struck=0},700)})(el)}}
     /* first contact (as in the reference): the fill reaches out to the still-empty target through a short neck with
        hard little radii — the neck stops at the target's outline (the target's inside is clipped away) — then the
        runner sinks into it and the target fills */
