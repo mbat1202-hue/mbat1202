@@ -2917,7 +2917,9 @@ $$('.f-mail,.m-mail').forEach(function(a){if(a.querySelector('.rl'))return;var t
 /* ---------- socials (every layout): first the lines draw out from the middle, then the circles grow from 0 ---------- */
 (function(){var boxes=$$('.m-circles,.social .soc');boxes.forEach(function(b){b.classList.add('dr')});
   if(reduce||!('IntersectionObserver' in window)){boxes.forEach(function(b){b.classList.add('drawn')});return}
-  var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('drawn');io.unobserve(e.target)}})},{rootMargin:'0px 0px -15% 0px'});
+  var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){var t=e.target;t.classList.add('drawn');io.unobserve(t);
+    /* once drawn, drop the draw-in styles so the circles' own hover transitions (fill, icon colour, ring) work without delay */
+    setTimeout(function(){t.classList.remove('dr','drawn')},2700)}})},{rootMargin:'0px 0px -15% 0px'});
   boxes.forEach(function(b){io.observe(b)});
 })();
 
