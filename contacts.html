@@ -1771,10 +1771,10 @@ input.fv-bad:not([type=checkbox]){border-bottom-color:transparent !important}
   stroke-dasharray:121 121;stroke-dashoffset:121;transform:rotate(-90deg);pointer-events:none}
 .sl-btn.ar .lc{position:relative;overflow:visible}
 .sl-btn.ar .lc path:last-child{transform-box:fill-box}
-.sl-btn.ar.ar-go .ar-ring{animation:arRing 1s ease forwards .3s}
-.sl-btn.ar.ar-go .lc{animation:arFly 1.6s ease forwards}
+.sl-btn.ar.ar-go .ar-ring{animation:arRing .6s ease forwards .12s}
+.sl-btn.ar.ar-go .lc{animation:arFly .9s ease forwards}
 .sl-btn.ar.ar-l.ar-go .lc{animation-name:arFlyL}
-.sl-btn.ar.ar-go .lc path:last-child{animation:arFold 1.6s ease forwards}
+.sl-btn.ar.ar-go .lc path:last-child{animation:arFold .9s ease forwards}
 .sl-btn.ar .lc path:last-child{transform-origin:100% 50%}
 .sl-btn.ar.ar-l .lc path:last-child{transform-origin:0 50%}
 @keyframes arRing{52%{transform:rotate(-270deg);stroke-dashoffset:0}52.1%{transform:rotate(-450deg);stroke-dashoffset:0}100%{transform:rotate(-270deg);stroke-dashoffset:121}}
@@ -1782,6 +1782,19 @@ input.fv-bad:not([type=checkbox]){border-bottom-color:transparent !important}
 @keyframes arFlyL{0%,100%{transform:translateX(0);opacity:1}23%{transform:translateX(-17px);opacity:1}24%,80%{transform:translateX(22px);opacity:0}81%{transform:translateX(22px);opacity:1}}
 @keyframes arFold{0%,100%{transform:scaleY(1)}20%,80%{transform:scaleY(.1)}}
 @media (prefers-reduced-motion:reduce){.sl-btn.ar .ar-ring,.sl-btn.ar .lc,.sl-btn.ar .lc path{animation:none !important}}
+/* long text in a field: it scrolls inside the brackets (never under "["), with a soft fade on the left once scrolled */
+.fb-in.fb-scr{-webkit-mask-image:linear-gradient(90deg,transparent 0,transparent calc(var(--pl,1em) - 2px),#000 calc(var(--pl,1em) + 1.4em));mask-image:linear-gradient(90deg,transparent 0,transparent calc(var(--pl,1em) - 2px),#000 calc(var(--pl,1em) + 1.4em))}
+/* checkbox: the tick forms while the box floods, not after it */
+.dc-cb:checked::after,.m-check input[type=checkbox]:checked::after{transition:clip-path .38s cubic-bezier(.4,0,.2,1) .28s !important}
+.fb-in.fb-more{-webkit-mask-image:linear-gradient(270deg,transparent 0,transparent calc(1em - 2px),#000 calc(2.4em));mask-image:linear-gradient(270deg,transparent 0,transparent calc(1em - 2px),#000 calc(2.4em))}
+.fb-in.fb-scr.fb-more{-webkit-mask-image:linear-gradient(90deg,transparent calc(var(--pl,1em) - 2px),#000 calc(var(--pl,1em) + 1.4em),#000 calc(100% - 2.4em),transparent calc(100% - 1em + 2px));mask-image:linear-gradient(90deg,transparent calc(var(--pl,1em) - 2px),#000 calc(var(--pl,1em) + 1.4em),#000 calc(100% - 2.4em),transparent calc(100% - 1em + 2px))}
+/* slider controls: [ ← ] ● ● ● ● ● ● [ → ] on the right edge — dots between the arrows (positions set by fixes.js);
+   idle dots are grey outlines, the current one white; on an arrow press a white ring leaves the arrow and flies into the
+   target dot while the fill flows there */
+.sl-arrows .sl-dots{right:auto !important}
+.sl-goo .sl-dot{border-color:rgba(255,255,255,.35) !important;transition:border-color .35s ease,transform .6s ease !important}
+.sl-goo .sl-dot.on{border-color:#fff !important}
+.sl-spark{position:absolute;left:0;top:0;width:10px;height:10px;margin:-5px 0 0 -5px;border:1px solid #fff;border-radius:50%;box-sizing:border-box;pointer-events:none;z-index:3}
 </style>
 </head>
 <body data-page="contacts" data-title-ru="Контакты — MARIART" data-title-en="Contacts — MARIART"><script>(function(){var w=document.documentElement.clientWidth;document.body.style.zoom=w>=1024?w/1920:(w>600?w/600:(w<360?w/360:""));document.documentElement.classList.toggle("tab",w>600&&w<1024)})();</script>
@@ -2912,6 +2925,7 @@ magnetAll();
   });
 })();
 
+function fbFade(i){i.classList.toggle('fb-scr',i.scrollLeft>1);i.classList.toggle('fb-more',i.scrollWidth-i.clientWidth-i.scrollLeft>1)}
 /* ---------- form fields: bracket placeholders (inline flow, so the brackets always hug the text) ---------- */
 $$('.dc-in,.m-form input:not([type=checkbox])').forEach(function(inp){
   var ph=inp.getAttribute('placeholder')||'';var m=BR.exec(ph);if(!m)return;
@@ -2928,9 +2942,10 @@ $$('.dc-in,.m-form input:not([type=checkbox])').forEach(function(inp){
     var st=inp.value?'typed':(document.activeElement===inp?'focus':(hov?'hover':'idle'));
     o.dataset.st=st;
     T.textContent=inp.value?inp.value:(cur?cur[1]:m[1]);
-    inp.style.textIndent=(L.offsetWidth+parseFloat(cs.fontSize)*.2)+'px';
+    var pl=(L.offsetWidth+parseFloat(cs.fontSize)*.25);inp.style.textIndent='0';inp.style.setProperty('padding-left',pl+'px','important');inp.style.setProperty('--pl',pl+'px');
+    fbFade(inp);
   }
-  ['input','focus','blur'].forEach(function(ev){inp.addEventListener(ev,place)});
+  ['input','focus','blur','keyup','select'].forEach(function(ev){inp.addEventListener(ev,place)});inp.addEventListener('scroll',function(){fbFade(inp)});
   inp.addEventListener('mouseenter',function(){hov=true;place()});inp.addEventListener('mouseleave',function(){hov=false;place()});
   addEventListener('resize',place);new MutationObserver(place).observe(R,{attributes:true,attributeFilter:['data-lang']});
   if(inp.form)inp.form.addEventListener('reset',function(){setTimeout(place,0)});
@@ -2975,7 +2990,7 @@ $$('.sl-dots').forEach(function(box){
     /* band between the trailing and the leading S partitions */
     clip.setAttribute('d','M'+f(x1)+' '+f(top)+sCurve(x1,top,bot,s,false).slice(('L'+f(x1)+' '+f(top)).length)+'L'+f(x2)+' '+f(bot)+sCurve(x2,top,bot,s,true).slice(('L'+f(x2)+' '+f(bot)).length)+'Z');
   }
-  function loop(now){var t=Math.min(1,(now-t0)/DUR);lastT=t;render(t);if(t<1)raf=requestAnimationFrame(loop);else{raf=0;from=-1;cur=to}}
+  function loop(now){var t=Math.max(0,Math.min(1,(now-t0)/DUR));lastT=t;render(t);if(t<1)raf=requestAnimationFrame(loop);else{raf=0;from=-1;cur=to}}
   function upd(anim){
     var dots=$$('.sl-dot',box),i=dots.findIndex(function(d){return d.classList.contains('on')});if(i<0)return;
     sv.setAttribute('width',box.offsetWidth);sv.setAttribute('height',box.offsetHeight);sv.setAttribute('viewBox','0 0 '+box.offsetWidth+' '+box.offsetHeight);
@@ -2983,7 +2998,7 @@ $$('.sl-dots').forEach(function(box){
     if(cur<0||!anim||reduce){cancelAnimationFrame(raf);raf=0;from=-1;cur=to=i;render(1);return}
     if(raf){cur=lastT<.5?from:to;cancelAnimationFrame(raf);raf=0}   // rapid clicks: continue from where the fill visibly is
     if(i===cur&&!raf){to=i;render(1);return}
-    from=cur;to=i;t0=performance.now();raf=requestAnimationFrame(loop);
+    from=cur;to=i;var dl=Math.max(0,(box._delayUntil||0)-performance.now());t0=performance.now()+dl;raf=requestAnimationFrame(loop);
   }
   new MutationObserver(function(){upd(true)}).observe(box,{subtree:true,attributes:true,attributeFilter:['class']});
   setTimeout(function(){upd(false)},50);addEventListener('resize',function(){upd(false)});
@@ -3311,8 +3326,40 @@ magnetAll();setTimeout(magnetAll,1500);
   Array.prototype.forEach.call(bs,function(b){if(b.querySelector('.ar-ring'))return;
     b.classList.add('ar');if(b.classList.contains('sl-prev'))b.classList.add('ar-l');
     b.insertAdjacentHTML('afterbegin','<svg class="ar-ring" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="19.25"/></svg>');
-    b.addEventListener('click',function(){if(rm||b.classList.contains('ar-go'))return;b.classList.add('ar-go');setTimeout(function(){b.classList.remove('ar-go')},1600)});
+    b.addEventListener('click',function(){if(rm||b.classList.contains('ar-go'))return;b.classList.add('ar-go');setTimeout(function(){b.classList.remove('ar-go')},900)});
   });
+})();
+
+/* ---------- custom cursor stays visible over modal dialogs (privacy policy): a modal sits in the browser's top layer,
+   above any z-index, so while one is open the cursor element moves inside it ---------- */
+(function(){function sync(){var c=document.getElementById('cur');if(!c)return;
+    var d=Array.prototype.filter.call(document.querySelectorAll('dialog[open]'),function(x){return x.matches(':modal')})[0];
+    var home=d||document.body;if(c.parentNode!==home)home.appendChild(c)}
+  new MutationObserver(sync).observe(document.documentElement,{subtree:true,attributes:true,attributeFilter:['open']});
+})();
+
+/* ---------- slider controls layout + the ring that flies from an arrow into the dot it selects ---------- */
+(function(){var A=document.querySelector('.sl-arrows');if(!A)return;
+  var pv=A.querySelector('.sl-prev'),nx=A.querySelector('.sl-next'),ds=A.querySelector('.sl-dots');if(!pv||!nx||!ds)return;
+  var G=16;
+  function lay(){var nl=nx.offsetLeft,w=ds.offsetWidth;if(!w)return;var dl=nl-G-w;
+    ds.style.setProperty('left',dl+'px','important');ds.style.setProperty('top',(nx.offsetTop+(nx.offsetHeight-ds.offsetHeight)/2)+'px','important');
+    pv.style.setProperty('left',(dl-G-pv.offsetWidth)+'px','important')}
+  lay();addEventListener('resize',lay);addEventListener('load',lay);setTimeout(lay,300);
+  var rm=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function fly(btn){if(rm)return;setTimeout(function(){
+      var on=ds.querySelector('.sl-dot.on');if(!on)return;
+      var s=document.createElement('i');s.className='sl-spark';A.appendChild(s);
+      var x0=btn.offsetLeft+btn.offsetWidth/2,y0=btn.offsetTop+btn.offsetHeight/2,
+          x1=ds.offsetLeft+on.offsetLeft+on.offsetWidth/2,y1=ds.offsetTop+on.offsetTop+on.offsetHeight/2,k=btn.offsetWidth/10;
+      var mx=(x0+x1)/2,my=Math.min(y0,y1)-14;   /* a small arc over the row */
+      var an=s.animate([{transform:'translate('+x0+'px,'+y0+'px) scale('+k+')',opacity:1},
+                        {transform:'translate('+mx+'px,'+my+'px) scale('+(k*.45)+')',opacity:1,offset:.5},
+                        {transform:'translate('+x1+'px,'+y1+'px) scale(1)',opacity:1,offset:.92},
+                        {transform:'translate('+x1+'px,'+y1+'px) scale(1.5)',opacity:0}],{duration:440,easing:'cubic-bezier(.65,0,.35,1)'});
+      an.onfinish=function(){s.remove()}},60)}
+  /* the fill waits for the ring to arrive (pointerdown comes before the click that switches the slide) */
+  [pv,nx].forEach(function(b){b.addEventListener('pointerdown',function(){if(!rm)ds._delayUntil=performance.now()+330});b.addEventListener('click',function(){fly(b)})});
 })();
 </script>
 </body>
