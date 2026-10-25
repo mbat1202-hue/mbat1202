@@ -3683,14 +3683,13 @@ magnetAll();setTimeout(magnetAll,1500);
       var dots=[].slice.call(ds.querySelectorAll('.sl-dot')),N=dots.length,on=dots.findIndex(function(d){return d.classList.contains('on')});
       var tgt=b===nx?(on+1)%N:(on-1+N)%N,len=b===nx?N-tgt:tgt+1;ds._delayUntil=performance.now()+200+(len-1)*STEP+40});
     b.addEventListener('click',function(){setTimeout(function(){wave(b)},0)})});
-  /* autoplay: when the slide changes by itself, the "next" (or "prev") arrow plays the same press — its stroke runs,
-     it jolts, and passes the signal along the dots to the new one — so the arrows are never silent */
+  /* autoplay: only tracked (the arrows animate on a press only) */
   var lastUser=0,lastOn=-1;
   ['pointerdown','keydown','wheel','touchstart'].forEach(function(ev){var sv=document.querySelector('.sl');(sv||A).addEventListener(ev,function(){lastUser=performance.now()},{passive:true});A.addEventListener(ev,function(){lastUser=performance.now()},{passive:true})});
   function onIdx(){return [].slice.call(ds.querySelectorAll('.sl-dot')).findIndex(function(d){return d.classList.contains('on')})}
   setTimeout(function(){lastOn=onIdx()},100);
   ds._beforeUpd=function(){var i=onIdx();if(i<0||i===lastOn){return}var prev=lastOn;lastOn=i;
-    if(rm||prev<0||performance.now()-lastUser<900)return;
+    return;   /* autoplay: arrows stay still and no impulse runs — the dots just merge into the new one */
     var N=ds.querySelectorAll('.sl-dot').length,b=(i===(prev+1)%N)?nx:(i===(prev-1+N)%N?pv:(i>prev?nx:pv));
     var len=b===nx?N-i:i+1;ds._delayUntil=performance.now()+200+(len-1)*STEP+40;
     if(!b.classList.contains('ar-go')){b.classList.add('ar-go');setTimeout(function(){b.classList.remove('ar-go')},1600)}
