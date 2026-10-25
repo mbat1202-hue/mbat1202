@@ -1899,23 +1899,27 @@ input.fv-bad:not([type=checkbox]){border-bottom-color:transparent !important}
 :root .m-head .m-burger.mb-back{background-color:transparent !important;color:#fff !important;box-shadow:inset 0 0 0 1px #fff !important;
   transition:opacity .3s ease .45s,visibility 0s linear .45s,box-shadow .6s cubic-bezier(.08,.32,.78,.12),color .3s ease .3s,translate .2s !important}
 :root .m-head .m-burger.mb-back.mb-fill{box-shadow:inset 0 0 0 60px #fff !important;color:#000 !important}
-/* slider arrows: CodePen-style micro-interaction (fixes.js adds .ar-go for 1.6 s on press) */
-.sl-arrows .sl-btn.ar{position:absolute;overflow:visible;-webkit-mask-image:radial-gradient(closest-side,#000 99%,transparent 100%);mask-image:radial-gradient(closest-side,#000 99%,transparent 100%)}
-.sl-btn.ar .ar-ring{position:absolute;inset:-1px;width:calc(100% + 2px);height:calc(100% + 2px);fill:none;stroke:currentColor;stroke-width:1.5;
-  stroke-dasharray:121 121;stroke-dashoffset:121;transform:rotate(-90deg);pointer-events:none}
-.sl-btn.ar .lc{position:relative;overflow:visible}
-.sl-btn.ar .lc path:last-child{transform-box:fill-box}
-.sl-btn.ar.ar-go .ar-ring{animation:arRing .6s ease forwards .12s}
-.sl-btn.ar.ar-go .lc{animation:arFly .9s ease forwards}
-.sl-btn.ar.ar-l.ar-go .lc{animation-name:arFlyL}
-.sl-btn.ar.ar-go .lc path:last-child{animation:arFold .9s ease forwards}
-.sl-btn.ar .lc path:last-child{transform-origin:100% 50%}
-.sl-btn.ar.ar-l .lc path:last-child{transform-origin:0 50%}
-@keyframes arRing{52%{transform:rotate(-270deg);stroke-dashoffset:0}52.1%{transform:rotate(-450deg);stroke-dashoffset:0}100%{transform:rotate(-270deg);stroke-dashoffset:121}}
-@keyframes arFly{0%,100%{transform:translateX(0);opacity:1}23%{transform:translateX(17px);opacity:1}24%,80%{transform:translateX(-22px);opacity:0}81%{transform:translateX(-22px);opacity:1}}
-@keyframes arFlyL{0%,100%{transform:translateX(0);opacity:1}23%{transform:translateX(-17px);opacity:1}24%,80%{transform:translateX(22px);opacity:0}81%{transform:translateX(22px);opacity:1}}
-@keyframes arFold{0%,100%{transform:scaleY(1)}20%,80%{transform:scaleY(.1)}}
-@media (prefers-reduced-motion:reduce){.sl-btn.ar .ar-ring,.sl-btn.ar .lc,.sl-btn.ar .lc path{animation:none !important}}
+/* slider arrows: aaroniker's "Arrow micro interaction" (CodePen BbPpOj), as given — chevron, faint 2px ring, traced stroke */
+.sl-arrows .sl-btn.ar{--active:#fff;--border:rgba(255,255,255,.12);position:absolute;display:block;width:44px !important;height:44px !important;padding:0;
+  border:0 !important;border-radius:50% !important;background:none !important;color:var(--active) !important;overflow:visible;transition:opacity .3s ease !important}
+.sl-arrows .sl-btn.ar:hover{background:none !important;color:var(--active) !important;--border:rgba(255,255,255,.3)}
+.sl-arrows .sl-btn.ar.ar-l{transform:scaleX(-1)}
+.sl-arrows .sl-btn.ar .lc{display:none !important}
+.sl-arrows .sl-btn.ar::before{content:'';display:block;position:absolute;inset:1px;border-radius:50%;border:2px solid var(--border);box-sizing:border-box;transition:border-color .3s ease}
+.sl-arrows .sl-btn.ar i.ar-i{display:block;position:absolute;margin:-10px 0 0 -10px;width:20px;height:20px;left:50%;top:50%}
+.sl-arrows .sl-btn.ar i.ar-i::before,.sl-arrows .sl-btn.ar i.ar-i::after{content:'';width:10px;height:2px;border-radius:1px;position:absolute;left:50%;top:50%;background:var(--active);margin:-1px 0 0 -5px;display:block;transform-origin:9px 50%}
+.sl-arrows .sl-btn.ar i.ar-i::before{transform:rotate(-40deg)}
+.sl-arrows .sl-btn.ar i.ar-i::after{transform:rotate(40deg)}
+.sl-arrows .sl-btn.ar svg.ar-ring{width:44px;height:44px;display:block;position:relative;z-index:1;fill:none;stroke:currentColor;color:var(--active);stroke-width:2px;stroke-dashoffset:126;stroke-dasharray:126 126 0;transform:rotate(0deg)}
+.sl-arrows .sl-btn.ar.ar-go svg.ar-ring{animation:arStroke 1s ease forwards .3s}
+.sl-arrows .sl-btn.ar.ar-go i.ar-i{animation:arArrow 1.6s ease forwards}
+.sl-arrows .sl-btn.ar.ar-go i.ar-i::before{animation:arUp 1.6s ease forwards}
+.sl-arrows .sl-btn.ar.ar-go i.ar-i::after{animation:arDown 1.6s ease forwards}
+@keyframes arStroke{52%{transform:rotate(-180deg);stroke-dashoffset:0}52.1%{transform:rotate(-360deg);stroke-dashoffset:0}100%{transform:rotate(-180deg);stroke-dashoffset:126}}
+@keyframes arArrow{0%,100%{transform:translateX(0);opacity:1}23%{transform:translateX(17px);opacity:1}24%,80%{transform:translateX(-22px);opacity:0}81%{opacity:1;transform:translateX(-22px)}}
+@keyframes arUp{0%,100%{transform:rotate(-40deg) scaleX(1)}20%,80%{transform:rotate(0deg) scaleX(.1)}}
+@keyframes arDown{0%,100%{transform:rotate(40deg) scaleX(1)}20%,80%{transform:rotate(0deg) scaleX(.1)}}
+@media (prefers-reduced-motion:reduce){.sl-arrows .sl-btn.ar *,.sl-arrows .sl-btn.ar *::before,.sl-arrows .sl-btn.ar *::after{animation:none !important}}
 /* long text in a field: it scrolls inside the brackets (never under "["), with a soft fade on the left once scrolled */
 .fb-in.fb-scr{-webkit-mask-image:linear-gradient(90deg,transparent 0,transparent calc(var(--pl,1em) - 2px),#000 calc(var(--pl,1em) + 1.4em));mask-image:linear-gradient(90deg,transparent 0,transparent calc(var(--pl,1em) - 2px),#000 calc(var(--pl,1em) + 1.4em))}
 /* checkbox: the tick forms while the box floods, not after it */
@@ -1929,6 +1933,8 @@ input.fv-bad:not([type=checkbox]){border-bottom-color:transparent !important}
 .sl-goo .sl-dot{border-color:rgba(255,255,255,.35) !important;transition:border-color .35s ease,transform .6s ease !important}
 .sl-goo .sl-dot.on{border-color:#fff !important}
 .sl-spark{position:absolute;left:0;top:0;width:10px;height:10px;margin:-5px 0 0 -5px;border:1px solid #fff;border-radius:50%;box-sizing:border-box;pointer-events:none;z-index:3}
+.sl-arrows .sl-next.ar{left:1716px !important}
+.sl-goo .sl-dot.sl-hit{border-color:#fff !important;box-shadow:0 0 6px rgba(255,255,255,.55)}
 </style>
 </head>
 <body data-page="project" data-title-ru="Crumb and Co — MARIART" data-title-en="Crumb and Co — MARIART"><script>(function(){var w=document.documentElement.clientWidth;document.body.style.zoom=w>=1024?w/1920:(w>600?w/600:(w<360?w/360:""));document.documentElement.classList.toggle("tab",w>600&&w<1024)})();</script>
@@ -2574,7 +2580,7 @@ var R=document.documentElement, reduce=matchMedia('(prefers-reduced-motion: redu
 var fine=matchMedia('(hover:hover) and (pointer:fine)').matches;
 var $$=function(s,root){return [].slice.call((root||document).querySelectorAll(s))};
 function rnd(a,b){return a+Math.random()*(b-a)}
-var EX='#ldr,#cur,.m-soct';
+var EX='#ldr,#cur,.m-soct svg,.m-soct .soc-c,.m-soct .soc-tgring,.m-soct .soc-ring';
 
 /* ---------------------------------------------------------- text helpers */
 function isPlain(el){return el.childNodes.length>0&&[].every.call(el.childNodes,function(n){return n.nodeType===3||n.nodeName==='BR'})}
@@ -2677,7 +2683,11 @@ mark('.dc-year,.f-year','num');
 mark('.cv .lbl,.label,.m-label,.soc-label,.dc-mail','label');
 mark('.cv .h61,.cv .h38,.h2,.h-role,.m-h30,.m-h2,.m-h2s,.mh-h,.soc-h,.cap32,.c32 h3,.c32 .n,.pf-body h3,.pf-tx > .n,.mp-it h3,.mp-it > .n,.m-cap,.fq summary > span,.cards3 h3,.cards2 h3,.cards3 .num,.cards2 .num,.m-card h3,.m-card .num,.sv-pkt b,.sv-pkt .n,.ms-pi b,.ms-pi .n,.mj-t','head');
 mark('.cv .txt18 p,.c32 p,.lead,.m-lead,.mh-p,.cards3 p,.cards2 p,.m-card p,.pf-p p,.soc-note,.m-note,.ct-b,.mc-s,.mh-list p,.dc-cbt,.m-check p','para');
-mark('.pf-btn,.mp-btn,.hm-more,.mh-more,.sl-arrows','btn');   /* .mh-glass-wrap is not animated: an animated wrapper isolates the glass canvas and breaks its blend */
+/* project page: its loose paragraphs and pictures get the same reveals as everywhere else */
+mark('.cv p.txt18,.mj-hero > p','para');
+mark('.mj-t','label');
+mark('.pj-himg,.mj-himg,.mj-lap,.cv img[src*="pj-"]','img');
+mark('.pf-btn,.mp-btn,.hm-more,.mh-more,.sl-arrows,.pj-prev,.pj-next','btn');   /* .mh-glass-wrap is not animated: an animated wrapper isolates the glass canvas and breaks its blend */
 mark('.dc-in,.dc-cb,.dc-btn,.m-f,.m-check input,.m-form button','form');
 mark('.f-top .f-mail,.f-nav li,.f-soc li,.f-lang,.m-navs li,.m-mail,.m-frow > *,.f-first > *','mask');
 mark('canvas.blobs','canvas');
@@ -2815,8 +2825,9 @@ L.innerHTML='<div class="l-top"><span class="l-ttl">MARIART</span><span class="l
 R.appendChild(L);
 var digits=$$('.dgs',L), pct=L.querySelector('.l-pct'), gl=L.querySelector('.l-gl'), code=L.querySelector('.l-code'), bar=L.querySelector('.l-bar');
 /* real readiness: fonts + images + window load; the counter never runs ahead of it */
-var imgs=$$('img').filter(function(i){return i.loading!=='lazy'}), total=imgs.length+2, ready=0, loaded=false, fontsOk=false;
-function cnt(){ready=imgs.filter(function(i){return i.complete}).length+(fontsOk?1:0)+(loaded?1:0)}
+/* everything is fetched while the loader runs (lazy images too), so nothing pops in or stutters afterwards */
+var imgs=$$('img').filter(function(i){if(i.loading==='lazy')i.loading='eager';return true}), needCoil=!!document.querySelector('img.glass, .mh-glass-wrap img'), total=imgs.length+2+(needCoil?1:0), ready=0, loaded=false, fontsOk=false;
+function cnt(){ready=imgs.filter(function(i){return i.complete}).length+(fontsOk?1:0)+(loaded?1:0)+(needCoil&&(window.__coilReady||performance.now()-T0>9000)?1:0)}
 if(document.fonts&&document.fonts.ready)document.fonts.ready.then(function(){fontsOk=true});else fontsOk=true;
 if(document.readyState==='complete')loaded=true;else addEventListener('load',function(){loaded=true});
 /* lines of this very site's code, typed while the page gets ready */
@@ -2824,14 +2835,14 @@ var src=$$('style').map(function(s){return s.textContent}).join('\n').replace(/\
   .filter(function(l){return l.length>14&&l.length<260&&l[0]!=='@'&&l.indexOf('base64')<0&&l.indexOf('url(')<0});
 /* enough lines to fill the whole screen; long lines simply run off the right edge */
 var NL=Math.ceil(innerHeight/14)+2,lines=[],st=Math.floor(rnd(0,Math.max(1,src.length-NL*3)));for(var i=0;i<NL;i++)lines.push((src[st+i*3]||src[i%src.length]||'')+' }');
-var codeTxt=lines.join('\n'), T0=performance.now(), MIN=3800, MAX=9000, shown=-1, nextGl=T0+rnd(250,500), glEnd=0, stages=[25,50,75,92], jolt=0;
+var codeTxt=lines.join('\n'), T0=performance.now(), MIN=3800, MAX=14000, shown=-1, nextGl=T0+rnd(250,500), glEnd=0, stages=[25,50,75,92], jolt=0;
 function setNum(v){v=Math.max(1,v);var s=('00'+v).slice(-3);
   digits.forEach(function(d,k){var n=+s[k];d.style.transform='translateY('+(-n*10)+'%)';d.parentNode.classList.toggle('dim',k<3-String(v).length)});
   gl.setAttribute('data-t',s.replace(/^0+(?=\d)/,'')+'%');}
 var p=0;
 function frame(now){
   cnt(); var el=now-T0, real=ready/total;
-  if(loaded&&fontsOk)real=1; if(el>MAX)real=1;
+  if(loaded&&fontsOk&&(!needCoil||window.__coilReady||el>9000)&&ready>=total)real=1; if(el>MAX)real=1;
   var cap=Math.min(1,el/MIN);                       // smooth: never faster than MIN
   p+=(Math.min(real,cap)-p)*0.18; if(Math.min(real,cap)>=1&&p>.995)p=1;
   var v=Math.round(p*100); if(v!==shown){shown=v;setNum(v);bar.style.width=v+'%'}
@@ -3031,7 +3042,7 @@ if(mh){
   var SOC=[['https://www.behance.net/mariabatulkina','behance'],['https://www.linkedin.com/in/maria-batulkina-265162400','linkedin'],['https://t.me/MBAT1202','telegram']];
   mm.innerHTML='<div class="mm-card"><a class="mm-logo" href="index.html">MARIART</a><button type="button" class="mm-x" aria-label="Close"></button>'+
     '<nav class="mm-nav">'+PAGES.filter(function(p){return p[0]!=='index.html'&&p[0]!=='contacts.html'}).map(function(p,i){return '<a href="'+p[0]+'" style="--i:'+i+'"'+(p[0]===page?' class="cur"':'')+'><span><span class="mm-b">[</span><span class="en-only">'+p[1]+'</span><span class="ru-only">'+p[2]+'</span><span class="mm-b">]</span></span></a>'}).join('')+'</nav>'+
-    '<div class="mm-side">'+SOC.map(function(x,i){return '<a href="'+x[0]+'" target="_blank" rel="noopener" style="--i:'+i+'"><span class="mm-b">[</span>'+x[1]+'<span class="mm-b">]</span></a>'}).join('')+'</div>'+
+    '<div class="mm-side">'+SOC.map(function(x,i){return '<a href="'+x[0]+'" target="_blank" rel="noopener" style="--i:'+i+'" class="bk"><span class="bk-l">[</span><span class="bk-t">'+x[1]+'</span><span class="bk-r">]</span></a>'}).join('')+'</div>'+
     '<div class="mm-bot"><a class="mm-cta" href="contacts.html"><span class="en-only">contacts</span><span class="ru-only">контакты</span></a></div></div>';
   document.querySelector('.m-view').appendChild(mm);
   var mt=toggle();mt.classList.add('lgx-mm');mm.querySelector('.mm-bot').appendChild(mt);syncLang();
@@ -3167,9 +3178,9 @@ $$('.sl-dots').forEach(function(box){
   box.classList.add('sl-goo');
   var NS='http://www.w3.org/2000/svg',sv=document.createElementNS(NS,'svg');sv.setAttribute('class','sl-fill');sv.setAttribute('aria-hidden','true');
   var cid='slc'+Math.random().toString(36).slice(2,7);
-  sv.innerHTML='<defs><clipPath id="'+cid+'"><path/></clipPath></defs><g fill="#fff" clip-path="url(#'+cid+')"></g>';
+  sv.innerHTML='<defs><clipPath id="'+cid+'" clip-rule="evenodd"><path clip-rule="evenodd"/></clipPath></defs><g fill="#fff"></g>';
   box.appendChild(sv);var clip=sv.querySelector('clipPath path'),fill=sv.querySelector('svg > g');
-  var cur=-1,from=-1,to=-1,t0=0,raf=0,DUR=480,lastT=1;
+  var cur=-1,from=-1,to=-1,t0=0,raf=0,DUR=620,lastT=1;
   function geo(){return $$('.sl-dot',box).map(function(d){var w=d.offsetWidth;return {cx:d.offsetLeft+w/2,cy:d.offsetTop+d.offsetHeight/2,r:w/2}})}
   var f=function(n){return n.toFixed(2)};
   function circ(c){return 'M'+f(c.cx-c.r)+' '+f(c.cy)+'a'+f(c.r)+' '+f(c.r)+' 0 1 0 '+f(2*c.r)+' 0a'+f(c.r)+' '+f(c.r)+' 0 1 0 '+f(-2*c.r)+' 0Z'}
@@ -3183,16 +3194,46 @@ $$('.sl-dots').forEach(function(box){
     var h=bot-top;return up?('L'+f(x)+' '+f(bot)+'C'+f(x+s)+' '+f(bot-h*.35)+' '+f(x-s)+' '+f(top+h*.35)+' '+f(x)+' '+f(top)):
       ('L'+f(x)+' '+f(top)+'C'+f(x-s)+' '+f(top+h*.35)+' '+f(x+s)+' '+f(bot-h*.35)+' '+f(x)+' '+f(bot))}
   var io=function(x){return x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2},cl=function(x){return Math.max(0,Math.min(1,x))};
-  function render(t){var G=geo();if(!G.length)return;
-    if(from<0||from===to||t>=1){var c=G[to<0?cur:to];fill.innerHTML='<path d="'+circ(c)+'"/>';clip.setAttribute('d','M-999 -999H9999V9999H-999Z');return}
-    var A=G[from],B=G[to],dir=B.cx>A.cx?1:-1,lo=Math.min(from,to),hi=Math.max(from,to),d='';
-    for(var k=lo;k<=hi;k++){d+='<path d="'+circ(G[k])+'"/>';if(k<hi)d+='<path d="'+neck(G[k],G[k+1],Math.sin(Math.PI*t))+'"/>'}
-    fill.innerHTML=d;  /* separate paths: their union is filled, no winding holes */
-    var lead=io(cl(t/.78)),trail=io(cl((t-.22)/.78)),r=A.r,top=A.cy-r-2,bot=A.cy+r+2;
-    var xL=A.cx+dir*r+(B.cx-A.cx)*lead+dir*.5,xT=A.cx-dir*r+(B.cx-A.cx)*trail-dir*.5,s=r*.55*Math.sin(Math.PI*t)*dir;
-    var x1=Math.min(xL,xT),x2=Math.max(xL,xT);
-    /* band between the trailing and the leading S partitions */
-    clip.setAttribute('d','M'+f(x1)+' '+f(top)+sCurve(x1,top,bot,s,false).slice(('L'+f(x1)+' '+f(top)).length)+'L'+f(x2)+' '+f(bot)+sCurve(x2,top,bot,s,true).slice(('L'+f(x2)+' '+f(bot)).length)+'Z');
+  /* union of two circles with concave fillets of radius fr (like a Figma boolean union with a corner radius) */
+  function fillet(c1,r1,c2,r2,fr){var dx=c2[0]-c1[0],dy=c2[1]-c1[1],d=Math.hypot(dx,dy);if(d<1e-3||r1<.2||r2<.2)return '';
+    var a=r1+fr,b=r2+fr;if(d>=a+b||d<=Math.abs(r1-r2))return '';
+    var ux=dx/d,uy=dy/d,px=-uy,py=ux,l=(a*a-b*b+d*d)/(2*d),hh=Math.sqrt(Math.max(0,a*a-l*l)),out='';
+    [1,-1].forEach(function(sg){var C=[c1[0]+ux*l+px*hh*sg,c1[1]+uy*l+py*hh*sg],
+      T1=[c1[0]+(C[0]-c1[0])*r1/a,c1[1]+(C[1]-c1[1])*r1/a],T2=[c2[0]+(C[0]-c2[0])*r2/b,c2[1]+(C[1]-c2[1])*r2/b],
+      sw=((T1[0]-C[0])*(T2[1]-C[1])-(T1[1]-C[1])*(T2[0]-C[0]))>0?1:0;
+      out+='<path d="M'+f(c1[0])+' '+f(c1[1])+'L'+f(T1[0])+' '+f(T1[1])+'A'+f(fr)+' '+f(fr)+' 0 0 '+sw+' '+f(T2[0])+' '+f(T2[1])+'L'+f(c2[0])+' '+f(c2[1])+'Z"/>'});
+    return out}
+  function dot(c,r){return r>.2?'<path d="M'+f(c[0]-r)+' '+f(c[1])+'a'+f(r)+' '+f(r)+' 0 1 0 '+f(2*r)+' 0a'+f(r)+' '+f(r)+' 0 1 0 '+f(-2*r)+' 0Z"/>':''}
+  var bumped=null;
+  function render(t){var G=geo();if(!G.length)return;clip.setAttribute('d','M-999 -999H9999V9999H-999Z');
+    if(from<0||t>=1){$$('.sl-dot',box).forEach(function(d){d.style.transform=''});bumped=null}
+    if(from<0||from===to||t>=1){var c=G[to<0?cur:to];fill.innerHTML=dot([c.cx,c.cy],c.r);return}
+    /* the filled dot runs to the next one (accelerating), hits it and merges into it through hard-radius fillets;
+       the struck dot gets knocked a little in the direction of travel and springs back */
+    var A=G[from],B=G[to],r=A.r,dir=B.cx>A.cx?1:-1,fr=r*.28;
+    /* run up to the contact point, hold there for a beat (the neck), then strike into the target */
+    var D=B.cx-A.cx,xc=B.cx-dir*(2*r+.35*r),x;
+    if(t<.34){var q=t/.34;x=A.cx+(xc-A.cx)*(q*q*(1.6-.6*q))}
+    else if(t<.52){x=xc+dir*r*.25*io((t-.34)/.18)}
+    else{var q2=cl((t-.52)/.14);x=xc+dir*r*.25+(B.cx-(xc+dir*r*.25))*q2*q2}
+    var M=[x,A.cy];
+    var grow=cl((t-.6)/.14),rB=r*io(grow);
+    var hit=cl((t-.64)/.36),kick=Math.sin(Math.PI*Math.min(1,hit*1.25))*Math.pow(1-hit,1.5)*r*.7*dir;
+    var Bc=[B.cx+kick,B.cy],rM=r*(1-.25*Math.sin(Math.PI*cl((t-.5)/.5)));
+    if(t>=.66){M=[Bc[0],Bc[1]]}
+    var dots=$$('.sl-dot',box),bd=dots[to];if(bd){bd.style.transform='translateX('+kick.toFixed(2)+'px)';bumped=bd}
+    /* dots on the way (a jump over several, e.g. last → first): each one is struck as the runner passes — its outline
+       flashes white and it is knocked aside — but it does not take the fill; only the destination fills */
+    for(var k=Math.min(from,to)+1;k<Math.max(from,to);k++){var g=G[k],dd=Math.abs(M[0]-g.cx),el=dots[k];if(!el)continue;
+      var near=cl(1-(dd-r)/(2.2*r));el.style.transform=near>0?'translateX('+(dir*Math.sin(Math.PI*near)*r*.45).toFixed(2)+'px)':'';
+      if(near>.5&&!el.classList.contains('sl-hit')){el.classList.add('sl-hit');(function(e){setTimeout(function(){e.classList.remove('sl-hit')},380)})(el)}}
+    /* first contact (as in the reference): the fill reaches out to the still-empty target through a short neck with
+       hard little radii — the neck stops at the target's outline (the target's inside is clipped away) — then the
+       runner sinks into it and the target fills */
+    if(rB<.2){var R0=r-.5;
+      clip.setAttribute('d','M-999 -999H9999V9999H-999Z M'+f(Bc[0]-R0)+' '+f(Bc[1])+'a'+f(R0)+' '+f(R0)+' 0 1 0 '+f(2*R0)+' 0a'+f(R0)+' '+f(R0)+' 0 1 0 '+f(-2*R0)+' 0Z');
+      fill.innerHTML=dot(M,rM)+'<g clip-path="url(#'+cid+')">'+fillet(M,rM,Bc,r,fr)+'</g>'}
+    else fill.innerHTML=dot(M,rM)+dot(Bc,rB)+fillet(M,rM,Bc,rB,fr);
   }
   function loop(now){var t=Math.max(0,Math.min(1,(now-t0)/DUR));lastT=t;render(t);if(t<1)raf=requestAnimationFrame(loop);else{raf=0;from=-1;cur=to}}
   function upd(anim){
@@ -3202,7 +3243,7 @@ $$('.sl-dots').forEach(function(box){
     if(cur<0||!anim||reduce){cancelAnimationFrame(raf);raf=0;from=-1;cur=to=i;render(1);return}
     if(raf){cur=lastT<.5?from:to;cancelAnimationFrame(raf);raf=0}   // rapid clicks: continue from where the fill visibly is
     if(i===cur&&!raf){to=i;render(1);return}
-    from=cur;to=i;var dl=Math.max(0,(box._delayUntil||0)-performance.now());t0=performance.now()+dl;raf=requestAnimationFrame(loop);
+    from=cur;to=i;DUR=720+170*(Math.abs(i-from)-1);var dl=Math.max(0,(box._delayUntil||0)-performance.now());t0=performance.now()+dl;raf=requestAnimationFrame(loop);
   }
   new MutationObserver(function(){upd(true)}).observe(box,{subtree:true,attributes:true,attributeFilter:['class']});
   setTimeout(function(){upd(false)},50);addEventListener('resize',function(){upd(false)});
@@ -3529,8 +3570,8 @@ magnetAll();setTimeout(magnetAll,1500);
   var rm=matchMedia('(prefers-reduced-motion: reduce)').matches;
   Array.prototype.forEach.call(bs,function(b){if(b.querySelector('.ar-ring'))return;
     b.classList.add('ar');if(b.classList.contains('sl-prev'))b.classList.add('ar-l');
-    b.insertAdjacentHTML('afterbegin','<svg class="ar-ring" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="19.25"/></svg>');
-    b.addEventListener('click',function(){if(rm||b.classList.contains('ar-go'))return;b.classList.add('ar-go');setTimeout(function(){b.classList.remove('ar-go')},900)});
+    b.insertAdjacentHTML('afterbegin','<i class="ar-i" aria-hidden="true"></i><svg class="ar-ring" viewBox="0 0 44 44" aria-hidden="true"><circle r="20" cy="22" cx="22"/></svg>');
+    b.addEventListener('click',function(){if(rm||b.classList.contains('ar-go'))return;b.classList.add('ar-go');setTimeout(function(){b.classList.remove('ar-go')},1600)});
   });
 })();
 
