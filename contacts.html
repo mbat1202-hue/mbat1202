@@ -1831,6 +1831,16 @@ input.fv-bad:not([type=checkbox]){border-bottom-color:transparent !important}
 .sl-dot svg.dt-arc{position:absolute;inset:-2px;width:calc(100% + 4px);height:calc(100% + 4px);overflow:visible;pointer-events:none}
 .sl-dot svg.dt-arc path{fill:none;stroke:#fff;stroke-width:1.1;stroke-linecap:butt;stroke-dasharray:0 52;stroke-dashoffset:0}
 @media (prefers-reduced-motion:reduce){.sl-dot svg.dt-arc{display:none}}
+/* socials: the circles are no longer scaled in — their outlines are drawn in the line SVG with the rest of the
+   composition (scroll-linked), and only then the icons appear (--gi set by fixes.js) */
+.dr :is(.m-c,.soc-c,svg.soc-tgring){scale:1 !important}
+/* the old outline sources go: the Telegram ring image / ring svg / border (Behance and LinkedIn "rings" are their icons) */
+.social .soc .soc-tg > img.soc-ring,.social .soc svg.soc-tgring,.m-circles .m-c.tg > img.m-ring{opacity:0 !important}
+#socials .soc .soc-c,#socials-t .soc .soc-c,.social .soc .soc-c,.m-circles .m-c{border-color:transparent !important}
+.social .soc .soc-c::after,.social .soc .soc-c::before,.social .soc .soc-tgi,.social .soc :is(.soc-be,.soc-in) > img.soc-ring,
+.m-circles .m-c::after,.m-circles .m-c::before,.m-circles .m-tg,.m-circles .m-c:not(.tg) > img.m-ring{opacity:var(--gi,1) !important;scale:calc(.7 + .3*var(--gi,1))}
+@media (prefers-reduced-motion:reduce){.social .soc,.m-circles{--gi:1 !important}}
+.social .soc,.m-circles{--gi:0}
 </style>
 </head>
 <body data-page="contacts" data-title-ru="Контакты — MARIART" data-title-en="Contacts — MARIART"><script>(function(){var w=document.documentElement.clientWidth;document.body.style.zoom=w>=1024?w/1920:(w>600?w/600:(w<360?w/360:""));document.documentElement.classList.toggle("tab",w>600&&w<1024)})();</script>
@@ -3091,7 +3101,7 @@ $$('.sl-dots').forEach(function(box){
     if(cur<0||!anim||reduce){cancelAnimationFrame(raf);raf=0;from=-1;cur=to=i;render(1);return}
     if(raf){cur=lastT<.5?from:to;cancelAnimationFrame(raf);raf=0}   // rapid clicks: continue from where the fill visibly is
     if(i===cur&&!raf){to=i;render(1);return}
-    from=cur;to=i;var dl=Math.max(0,(box._delayUntil||0)-performance.now());mode='run';DUR=720+170*(Math.abs(i-from)-1);t0=performance.now()+dl;raf=requestAnimationFrame(loop);
+    from=cur;to=i;var dl=Math.max(0,(box._delayUntil||0)-performance.now());mode=dl>0?'flood':'run';DUR=mode==='flood'?420:720+170*(Math.abs(i-from)-1);   /* arrow press: the impulse, then the target just fills; autoplay / dot click: the merge */t0=performance.now()+dl;raf=requestAnimationFrame(loop);
   }
   new MutationObserver(function(){if(box._beforeUpd)box._beforeUpd();upd(true)}).observe(box,{subtree:true,attributes:true,attributeFilter:['class']});
   setTimeout(function(){upd(false)},50);addEventListener('resize',function(){upd(false)});
@@ -3226,6 +3236,8 @@ function socGeo(o){var f=function(n){return (+n).toFixed(2)},id='sg'+(++socN),bi
     dashed=function(d,cls,st){var m=id+'d'+(k++);defs+='<mask id="'+m+'" maskUnits="userSpaceOnUse" '+big+'><path class="gd-m" data-st="'+st+'" d="'+d+'" fill="none" stroke="#fff" stroke-width="'+f(o.sw*4)+'"/></mask>';
       return '<g mask="url(#'+m+')"><path class="'+cls+'" d="'+d+'"/></g>'};
   o.rules.forEach(function(y,i){body+='<path class="gd gd-r" data-st="r'+i+'" d="M'+f(o.x0)+' '+f(y)+'H'+f(o.x1)+'"/>'});
+  /* the circle outlines are drawn too, together with the rest of the line work (the icons come in after) */
+  o.circles.forEach(function(c){body+='<path class="gd gd-c" data-st="c" d="M'+f(c.cx)+' '+f(c.cy-c.r+(o.ow||1)/2)+'a'+f(c.r-(o.ow||1)/2)+' '+f(c.r-(o.ow||1)/2)+' 0 1 1 0 '+f(2*c.r-(o.ow||1))+'a'+f(c.r-(o.ow||1)/2)+' '+f(c.r-(o.ow||1)/2)+' 0 1 1 0 '+f(-(2*c.r-(o.ow||1)))+'"/>'});
   var dsh='';o.pairs.forEach(function(pr){[1,-1].forEach(function(v){dsh+=dashed(socPath(pr[0],pr[1],v,f),'sx','x')})});
   o.arcs.forEach(function(d){dsh+=dashed(d,'ga','a')});
   return '<svg class="'+o.cls+' gd-svg" width="'+o.W+'" height="'+o.H+'" viewBox="0 0 '+o.W+' '+o.H+'" aria-hidden="true" fill="none" stroke-width="'+o.sw+'" style="stroke:var(--line)" shape-rendering="geometricPrecision"><defs>'+defs+'</defs>'+
@@ -3243,7 +3255,8 @@ var socRaf=0;
 function socUpd(){socRaf=0;socBoxes.forEach(function(box){if(!box._gd||!box.offsetParent&&box.getClientRects().length===0)return;
   var r=box.getBoundingClientRect(),vh=innerHeight,pr=reduce?1:Math.max(0,Math.min(1,(vh*.95-r.top)/(r.height*.55+vh*.3)));
   var nr=box._gd.filter(function(i){return i.st&&i.st[0]==='r'}).length||1;
-  box._gd.forEach(function(i){var a,b;if(i.st[0]==='r'){var k=+i.st.slice(1);a=k*.08;b=.42+k*.08}else if(i.st==='x'){a=.3;b=.78}else{a=.52;b=1}
+  var gi=Math.max(0,Math.min(1,(pr-.72)/.28));box.style.setProperty('--gi',(gi<.5?4*gi*gi*gi:1-Math.pow(-2*gi+2,3)/2).toFixed(3));
+  box._gd.forEach(function(i){var a,b;if(i.st[0]==='r'){var k=+i.st.slice(1);a=k*.08;b=.42+k*.08}else if(i.st==='c'){a=.12;b=.62}else if(i.st==='x'){a=.3;b=.78}else{a=.52;b=1}
     var q=Math.max(0,Math.min(1,(pr-a)/(b-a)));q=q<.5?4*q*q*q:1-Math.pow(-2*q+2,3)/2;
     i.p.style.strokeDashoffset=(i.L*(1-q)).toFixed(2)})})}
 function socTick(){if(!socRaf)socRaf=requestAnimationFrame(socUpd)}
